@@ -1,0 +1,18 @@
+{
+  "name": "talita-kum-mvp",
+  "version": "1.0.0",
+  "description": "Registro Inteligente de Intervenciones Terapéuticas",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "ejs": "^6.0.1",
+    "express": "^5.2.1"
+  }
+}
