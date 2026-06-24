@@ -27,25 +27,38 @@
           <input type="date" name="fecha" class="form-control">
         </div>
         <div class="col-12">
-          <label class="form-label">Descripción</label>
-          <textarea name="descripcion" class="form-control" rows="3"></textarea>
+          <label class="form-label d-flex justify-content-between align-items-center">
+            <span>Descripción</span>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-voice-target="descripcion">🎤 Dictar</button>
+          </label>
+          <textarea name="descripcion" id="descripcion" class="form-control" rows="3"></textarea>
         </div>
         <div class="col-12">
-          <label class="form-label">Objetivo</label>
-          <textarea name="objetivo" class="form-control" rows="3"></textarea>
+          <label class="form-label d-flex justify-content-between align-items-center">
+            <span>Objetivo</span>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-voice-target="objetivo">🎤 Dictar</button>
+          </label>
+          <textarea name="objetivo" id="objetivo" class="form-control" rows="3"></textarea>
         </div>
         <div class="col-12">
-          <label class="form-label">Acuerdos</label>
-          <textarea name="acuerdos" class="form-control" rows="3"></textarea>
+          <label class="form-label d-flex justify-content-between align-items-center">
+            <span>Acuerdos</span>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-voice-target="acuerdos">🎤 Dictar</button>
+          </label>
+          <textarea name="acuerdos" id="acuerdos" class="form-control" rows="3"></textarea>
         </div>
         <div class="col-12">
-          <label class="form-label">Observaciones</label>
-          <textarea name="observaciones" class="form-control" rows="3"></textarea>
+          <label class="form-label d-flex justify-content-between align-items-center">
+            <span>Observaciones</span>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-voice-target="observaciones">🎤 Dictar</button>
+          </label>
+          <textarea name="observaciones" id="observaciones" class="form-control" rows="3"></textarea>
         </div>
       </div>
 
       <button class="btn btn-primary mt-4">Guardar</button>
     </form>
   </div>
+  <script src="/js/voice.js"></script>
 </body>
 </html>

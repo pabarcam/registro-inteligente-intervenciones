@@ -18,6 +18,25 @@
       </div>
     </div>
 
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Síntesis asistida por IA</h5>
+        <% if (summaries.length === 0) { %>
+          <p class="text-muted mb-0">Aún no hay suficiente información para generar síntesis.</p>
+        <% } else { %>
+          <% summaries.forEach((item) => { %>
+            <div class="border rounded p-3 mb-3">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <strong><%= item.paciente %></strong>
+                <span class="badge bg-info text-dark"><%= item.count %> registros</span>
+              </div>
+              <p class="mb-0"><%= item.resumen %></p>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+    </div>
+
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">Intervenciones registradas</h5>

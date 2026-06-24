@@ -1,0 +1,21 @@
+# Dependencias
+node_modules/
+
+# Logs de error y debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
+# Entornos y variables de configuración (¡MUY IMPORTANTE!)
+.env
+.env.local
+.env.*.local
+
+# Archivos de VS Code (Configuración del editor)
+.vscode/
+!.vscode/extensions.json
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
