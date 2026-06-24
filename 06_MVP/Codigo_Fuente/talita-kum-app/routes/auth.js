@@ -1,17 +1,43 @@
 const express = require("express");
+const db = require("../config/db");
+
 const router = express.Router();
 
 router.get("/", (req, res) => {
-    res.render("login");
+  res.render("login", { error: null });
 });
 
 router.post("/login", (req, res) => {
+  const correo = (req.body.correo || "").trim();
+  const password = (req.body.password || "").trim();
 
-    const correo = req.body.correo;
+  if (!correo || !password) {
+    return res.render("login", { error: "Complete correo y contraseña" });
+  }
 
-    req.session.usuario = correo;
+  db.get(
+    "SELECT * FROM usuarios WHERE correo = ? AND password = ?",
+    [correo, password],
+    (err, usuario) => {
+      if (err) {
+        console.error(err);
+        return res.render("login", { error: "No se pudo validar el usuario" });
+      }
 
-    res.redirect("/intervenciones/dashboard");
+      if (!usuario) {
+        return res.render("login", { error: "Credenciales inválidas" });
+      }
+
+      req.session.usuario = usuario;
+      return res.redirect("/intervenciones/dashboard");
+    }
+  );
+});
+
+router.get("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/");
+  });
 });
 
 module.exports = router;
