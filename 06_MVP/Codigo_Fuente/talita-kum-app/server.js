@@ -7,6 +7,7 @@ const session = require("express-session");
 const authRoutes = require("./routes/auth");
 const dashboardRoutes = require("./routes/dashboard");
 const intervencionesRoutes = require("./routes/intervenciones");
+const voiceRoutes = require("./routes/voice");
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use(
 app.use("/", authRoutes);
 app.use("/intervenciones", dashboardRoutes);
 app.use("/intervenciones", intervencionesRoutes);
+app.use("/api/voice", voiceRoutes);
 
 app.use((req, res) => {
   res.status(404).send("Página no encontrada");
