@@ -1,0 +1,94 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Página-1" id="V67qOkI_Vp7X216q_rOg">
+    <mxGraphModel dx="766" dy="420" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="wayzrjgxErwrtfri-PR3-2" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;div&gt;Autor&lt;/div&gt;&lt;div&gt;-------------------&lt;/div&gt;&lt;div&gt;nombre :Paulo Abarca&lt;/div&gt;&lt;div&gt;nacionalidad : String&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="140" x="280" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-52" parent="1" style="whiteSpace=wrap;strokeWidth=2;verticalAlign=top;fillColor=#e6f2ff;strokeColor=#0066cc;fontColor=light-dark(#333333,#cccccc);" value="Escalabilidad Futura" vertex="1">
+          <mxGeometry height="414" width="820" x="280" y="1031" as="geometry" />
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-53" parent="tbpV_4SM7-505ba8FSOy-52" style="whiteSpace=wrap;strokeWidth=2;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="Infraestructura en la Nube" vertex="1">
+          <mxGeometry height="54" width="250" x="288" y="46" as="geometry" />
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-54" parent="tbpV_4SM7-505ba8FSOy-52" style="whiteSpace=wrap;strokeWidth=2;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="App en Contenedores" vertex="1">
+          <mxGeometry height="54" width="213" x="43" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-55" parent="tbpV_4SM7-505ba8FSOy-52" style="whiteSpace=wrap;strokeWidth=2;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="Sistema de Monitoreo" vertex="1">
+          <mxGeometry height="54" width="214" x="306" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-56" parent="tbpV_4SM7-505ba8FSOy-52" style="whiteSpace=wrap;strokeWidth=2;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="Respaldos Automáticos" vertex="1">
+          <mxGeometry height="54" width="223" x="570" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-57" parent="tbpV_4SM7-505ba8FSOy-52" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;strokeWidth=2;whiteSpace=wrap;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="PostgreSQL / MySQL" vertex="1">
+          <mxGeometry height="81" width="157" x="71" y="304" as="geometry" />
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-58" edge="1" parent="tbpV_4SM7-505ba8FSOy-52" source="tbpV_4SM7-505ba8FSOy-53" style="curved=1;startArrow=none;endArrow=none;exitX=0.06;exitY=0.99;entryX=0.5;entryY=-0.01;rounded=0;" target="tbpV_4SM7-505ba8FSOy-54" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="149" y="137" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-59" edge="1" parent="tbpV_4SM7-505ba8FSOy-52" source="tbpV_4SM7-505ba8FSOy-53" style="curved=1;startArrow=none;endArrow=none;exitX=0.5;exitY=0.99;entryX=0.5;entryY=-0.01;rounded=0;" target="tbpV_4SM7-505ba8FSOy-55" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-60" edge="1" parent="tbpV_4SM7-505ba8FSOy-52" source="tbpV_4SM7-505ba8FSOy-53" style="curved=1;startArrow=none;endArrow=none;exitX=0.95;exitY=0.99;entryX=0.5;entryY=-0.01;rounded=0;" target="tbpV_4SM7-505ba8FSOy-56" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="681" y="137" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-61" edge="1" parent="tbpV_4SM7-505ba8FSOy-52" source="tbpV_4SM7-505ba8FSOy-54" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=0.99;entryX=0.5;entryY=-0.01;rounded=0;" target="tbpV_4SM7-505ba8FSOy-57" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-62" parent="1" style="whiteSpace=wrap;strokeWidth=2;verticalAlign=top;fillColor=#f9f9f9;strokeColor=#666;fontColor=light-dark(#333333,#cccccc);dashed=1;dashPattern=5 5;" value="Primera Etapa: MVP" vertex="1">
+          <mxGeometry height="487" width="512" x="434" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-63" parent="tbpV_4SM7-505ba8FSOy-62" style="whiteSpace=wrap;strokeWidth=2;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="Hosting / Servidor de Pruebas" vertex="1">
+          <mxGeometry height="78" width="260" x="133" y="46" as="geometry" />
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-64" parent="tbpV_4SM7-505ba8FSOy-62" style="ellipse;aspect=fixed;strokeWidth=2;whiteSpace=wrap;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="App Node.js" vertex="1">
+          <mxGeometry height="102" width="102" x="212" y="199" as="geometry" />
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-65" parent="tbpV_4SM7-505ba8FSOy-62" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=10;strokeWidth=2;whiteSpace=wrap;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="Base de Datos: SQLite" vertex="1">
+          <mxGeometry height="82" width="172" x="65" y="375" as="geometry" />
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-66" parent="tbpV_4SM7-505ba8FSOy-62" style="whiteSpace=wrap;strokeWidth=2;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="Archivos Locales" vertex="1">
+          <mxGeometry height="54" width="178" x="287" y="389" as="geometry" />
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-67" edge="1" parent="tbpV_4SM7-505ba8FSOy-62" source="tbpV_4SM7-505ba8FSOy-63" style="curved=1;startArrow=none;endArrow=none;exitX=0.5;exitY=0.99;entryX=0.5;entryY=0;rounded=0;" target="tbpV_4SM7-505ba8FSOy-64" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-68" edge="1" parent="tbpV_4SM7-505ba8FSOy-62" source="tbpV_4SM7-505ba8FSOy-64" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.89;entryX=0.5;entryY=0;rounded=0;" target="tbpV_4SM7-505ba8FSOy-65" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="151" y="338" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-69" edge="1" parent="tbpV_4SM7-505ba8FSOy-62" source="tbpV_4SM7-505ba8FSOy-64" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.89;entryX=0.5;entryY=0.01;rounded=0;" target="tbpV_4SM7-505ba8FSOy-66" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="375" y="338" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tbpV_4SM7-505ba8FSOy-70" edge="1" parent="1" source="tbpV_4SM7-505ba8FSOy-62" style="curved=1;startArrow=none;endArrow=block;strokeWidth=3;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="tbpV_4SM7-505ba8FSOy-52" value="Migración Planificada">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

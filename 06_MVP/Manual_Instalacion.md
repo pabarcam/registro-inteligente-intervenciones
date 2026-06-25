@@ -1,4 +1,4 @@
-# Manual de instalación del MVP
+# Manual de instalacion del MVP
 
 ## 1. Requisitos previos
 - Node.js 18 o superior
@@ -17,42 +17,75 @@ cd registro-inteligente-intervenciones/06_MVP/Codigo_Fuente/talita-kum-app
 npm install
 ```
 
-## 4. Ejecutar la aplicación
+## 4. Variables de entorno recomendadas
+Crear un archivo `.env` en `06_MVP/Codigo_Fuente/talita-kum-app`:
+```env
+SESSION_SECRET=generar-un-secreto-largo-y-unico
+DATA_DIR=./data
+BACKUP_INTERVAL_HOURS=24
+```
+
+Opcionalmente se puede definir una ruta exacta de base de datos:
+```env
+DB_PATH=/ruta/segura/database.db
+BACKUP_DIR=/ruta/segura/backups
+```
+
+## 5. Ejecutar la aplicacion
 ```bash
 npm start
 ```
 
-La aplicación quedará disponible en:
+La aplicacion quedara disponible en:
 - http://localhost:3000
 
-## 5. Credenciales de acceso inicial
+## 6. Credenciales de acceso inicial
 El sistema crea un usuario demo al iniciar por primera vez:
-- correo: admin@talita.com
-- contraseña: 123456
+- correo: `admin@talita.com`
+- contrasena: `123456`
 
-## 6. Ejecutar pruebas
+La contrasena se guarda como hash bcrypt irreversible en la base de datos.
+
+## 7. Ejecutar pruebas
 ```bash
 npm test
 ```
 
-## 7. Variables de entorno opcionales para IA
-Para activar la integración con una API de IA tipo Qwen, configurar:
+## 8. Variables de entorno opcionales para IA
+Para activar la integracion con una API de IA tipo Qwen, configurar:
 ```env
 AI_SUMMARY_API_URL=...
 AI_SUMMARY_API_KEY=...
 AI_SUMMARY_MODEL=qwen-plus
 ```
 
-Si no se configuran, la aplicación usará el mecanismo de resumen local como respaldo.
+Si no se configuran, la aplicacion usara el mecanismo de resumen local como respaldo.
 
-## 8. Estructura relevante del proyecto
-- server.js: punto de entrada del sistema
-- routes/: controladores de login, dashboard e intervenciones
-- views/: plantillas de interfaz
-- public/js/: scripts del navegador, incluido reconocimiento de voz
-- config/db.js: inicialización de la base de datos SQLite
+## 9. Respaldos y restauracion
+Crear respaldo manual:
+```bash
+npm run db:backup
+```
 
-## 9. Solución de problemas comunes
-- Si no inicia, revisar que Node.js esté instalado correctamente.
-- Si no aparece la interfaz, comprobar que el puerto 3000 esté libre.
-- Si la app no genera resúmenes con IA, no es un error crítico; el sistema usará el fallback local.
+Restaurar un respaldo con la aplicacion detenida:
+```bash
+npm run db:restore -- /ruta/al/respaldo.db
+```
+
+El proceso de restauracion crea primero una copia `pre-restore-*.db` de la base activa.
+
+## 10. Estructura relevante del proyecto
+- `server.js`: punto de entrada del sistema.
+- `routes/`: controladores de login, dashboard e intervenciones.
+- `views/`: plantillas de interfaz.
+- `public/js/`: scripts del navegador, incluido reconocimiento de voz.
+- `config/db.js`: inicializacion de la base de datos SQLite.
+- `config/paths.js`: rutas seguras/configurables para datos y respaldos.
+- `utils/passwords.js`: hashing y verificacion bcrypt.
+- `utils/backups.js`: creacion de respaldos.
+
+## 11. Solucion de problemas comunes
+- Si no inicia, revisar que Node.js este instalado correctamente.
+- Si no aparece la interfaz, comprobar que el puerto 3000 este libre.
+- Si la app no genera resumenes con IA, no es un error critico; el sistema usara el fallback local.
+- Si se restaura un respaldo, detener la aplicacion antes de ejecutar `npm run db:restore`.

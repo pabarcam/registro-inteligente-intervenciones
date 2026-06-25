@@ -8,6 +8,10 @@ const { enviarCorreoIntervencion } = require("../utils/mailer");
 
 const router = express.Router();
 
+function redirectBack(req, res, fallback = "/intervenciones/dashboard") {
+  return res.redirect(req.get("Referrer") || fallback);
+}
+
 /* ── GET /intervenciones/nueva ───────────────────────────── */
 router.get("/nueva", requireAuth, (req, res) => {
   const usuario = req.session.terapeuta || req.session.usuario || null;
@@ -156,8 +160,18 @@ router.get("/api/pacientes", requireAuth, (req, res) => {
   const query = (req.query.q || "").trim().toLowerCase();
   if (!query) return res.json([]);
 
-  // Si busca por iniciales o nombre
-  db.all("SELECT id, nombre FROM pacientes WHERE LOWER(nombre) LIKE ? ORDER BY nombre ASC", [`%${query}%`], (err, rows) => {
+  const isAdmin = req.session.usuario && req.session.usuario.rol === "admin";
+  const terapeuta = req.session.terapeuta ? req.session.terapeuta.nombre : null;
+  const sql = isAdmin
+    ? "SELECT id, nombre FROM pacientes WHERE LOWER(nombre) LIKE ? ORDER BY nombre ASC"
+    : `SELECT DISTINCT p.id, p.nombre
+       FROM pacientes p
+       INNER JOIN intervenciones i ON LOWER(i.paciente) = LOWER(p.nombre)
+       WHERE LOWER(p.nombre) LIKE ? AND i.terapeuta = ?
+       ORDER BY p.nombre ASC`;
+  const params = isAdmin ? [`%${query}%`] : [`%${query}%`, terapeuta || ""];
+
+  db.all(sql, params, (err, rows) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Error en BD" });
@@ -213,12 +227,20 @@ router.post("/editar/:id", requireAuth, (req, res) => {
   const terapeuta = req.session.terapeuta ? req.session.terapeuta.nombre : null;
 
   if (isAdmin || terapeuta) {
-    db.run("UPDATE intervenciones SET descripcion = ? WHERE id = ?", [descripcion, id], (err) => {
+    const sql = isAdmin
+      ? "UPDATE intervenciones SET descripcion = ? WHERE id = ?"
+      : "UPDATE intervenciones SET descripcion = ? WHERE id = ? AND terapeuta = ?";
+    const params = isAdmin ? [descripcion, id] : [descripcion, id, terapeuta];
+
+    db.run(sql, params, function(err) {
       if (err) {
         console.error(err);
         return res.status(500).send("No se pudo editar la intervención");
       }
-      return res.redirect("back");
+      if (!isAdmin && this.changes === 0) {
+        return res.status(403).send("No autorizado");
+      }
+      return redirectBack(req, res);
     });
   } else {
     return res.status(403).send("No autorizado");
@@ -233,13 +255,21 @@ router.post("/eliminar/:id", requireAuth, (req, res) => {
   const terapeuta = req.session.terapeuta ? req.session.terapeuta.nombre : null;
 
   if (isAdmin || terapeuta) {
-    db.run("DELETE FROM intervenciones WHERE id = ?", [id], (err) => {
+    const sql = isAdmin
+      ? "DELETE FROM intervenciones WHERE id = ?"
+      : "DELETE FROM intervenciones WHERE id = ? AND terapeuta = ?";
+    const params = isAdmin ? [id] : [id, terapeuta];
+
+    db.run(sql, params, function(err) {
       if (err) {
         console.error(err);
         return res.status(500).send("No se pudo eliminar la intervención");
       }
+      if (!isAdmin && this.changes === 0) {
+        return res.status(403).send("No autorizado");
+      }
       req.session.borrarSintesis = false;
-      return res.redirect("back");
+      return redirectBack(req, res, "/profesionales/admin");
     });
   } else {
     return res.status(403).send("No autorizado");

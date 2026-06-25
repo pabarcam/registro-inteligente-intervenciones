@@ -1,42 +1,49 @@
 # Seguridad y controles del proyecto
 
 ## 1. Objetivo
-Garantizar que la información de intervenciones y pacientes se maneje de forma segura, confiable y con trazabilidad.
+Garantizar que la informacion de intervenciones y pacientes se maneje de forma segura, confiable y con trazabilidad.
 
-## 2. Controles de seguridad propuestos
-### Autenticación y autorización
+## 2. Controles implementados
+### Autenticacion y autorizacion
 - Login con credenciales para acceso al sistema.
-- Protección de rutas mediante middleware de autenticación.
-- Control de acceso por roles, con posibilidad de ampliar permisos en fases posteriores.
+- Contrasenas almacenadas con hash bcrypt irreversible.
+- Migracion automatica de contrasenas antiguas en texto plano hacia bcrypt al iniciar.
+- Proteccion de rutas mediante middleware de autenticacion.
+- Restriccion por sesion: terapeutas ven y modifican solo sus intervenciones; administracion conserva acceso global.
+- Regeneracion de sesion al iniciar sesion para reducir riesgo de fijacion de sesion.
+- Cookies de sesion `httpOnly`, `sameSite=lax`, expiracion de 8 horas y `secure` en produccion.
 
-### Integridad de la información
-- Validación de campos obligatorios en formularios.
-- Almacenamiento estructurado de registros.
-- Prevención de registros incompletos o inconsistentes.
+### Proteccion de base de datos
+- Consultas SQL parametrizadas con placeholders (`?`) para reducir riesgo de inyeccion SQL.
+- Archivo SQLite ubicado por defecto en `data/database.db`, fuera de rutas estaticas publicas.
+- Ruta configurable mediante `DATA_DIR` o `DB_PATH` para usar una ubicacion institucional con permisos restringidos.
+- Datos locales, respaldos y uploads excluidos de Git mediante `.gitignore`.
 
 ### Disponibilidad
-- Manejo de errores en la carga de datos.
-- Respaldo del estado funcional del MVP.
-- Preparación para copias de seguridad y monitoreo en entorno real.
+- Respaldos periodicos cada 24 horas por defecto.
+- Respaldo manual con `npm run db:backup`.
+- Restauracion con `npm run db:restore -- /ruta/al/respaldo.db`.
+- Copia previa automatica antes de restaurar una base activa.
 
 ### Confidencialidad
 - Acceso restringido a usuarios autenticados.
-- Recomendación de usar contraseñas seguras y gestión de sesiones.
-- Futuro uso de HTTPS y cifrado en tránsito.
+- No se guardan hashes de contrasena dentro de la sesion.
+- Recomendacion de usar HTTPS en produccion.
 
 ## 3. Riesgos principales
 - acceso no autorizado,
-- pérdida de información,
+- perdida de informacion,
 - registros duplicados,
 - fallas del sistema,
-- falta de auditoría.
+- falta de auditoria.
 
 ## 4. Medidas recomendadas
-- implementar copias de seguridad periódicas,
-- habilitar logs de auditoría,
-- usar HTTPS en producción,
-- migrar a una base de datos más robusta si crece la carga,
-- separar entornos de desarrollo, pruebas y producción.
+- habilitar logs de auditoria,
+- usar HTTPS en produccion,
+- proteger filesystem con permisos del sistema operativo,
+- rotar `SESSION_SECRET` si se sospecha exposicion,
+- migrar a una base de datos mas robusta si crece la carga,
+- separar entornos de desarrollo, pruebas y produccion.
 
-## 5. Recomendación institucional
-La solución actual ofrece una base segura para un MVP; para despliegue real se recomienda fortalecer la seguridad con políticas formales de acceso, respaldo y monitoreo continuo.
+## 5. Recomendacion institucional
+La solucion actual ofrece una base segura para un MVP. Para despliegue real se recomienda formalizar politicas de acceso, respaldo, monitoreo continuo y auditoria.

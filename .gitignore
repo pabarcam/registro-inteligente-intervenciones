@@ -19,3 +19,10 @@ yarn-error.log*
 # Archivos de sistema
 .DS_Store
 Thumbs.db
+
+# Datos sensibles generados por el MVP
+**/data/
+**/database/*.db
+**/database/*.db-*
+**/backups/
+**/uploads/

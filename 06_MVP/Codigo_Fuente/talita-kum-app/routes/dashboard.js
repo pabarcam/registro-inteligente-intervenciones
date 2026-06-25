@@ -1,7 +1,7 @@
 const express = require("express");
 const db = require("../config/db");
 const { requireAuth } = require("../middleware/auth");
-const { buildPatientSummaryAsync } = require("../utils/ia");
+const { buildPatientSummaryAsync, sanitizeSummaryText } = require("../utils/ia");
 
 const router = express.Router();
 
@@ -26,7 +26,7 @@ function loadSummary(paciente) {
     db.get(
       "SELECT resumen FROM resumenes WHERE paciente = ?",
       [paciente],
-      (err, row) => (err ? reject(err) : resolve(row ? row.resumen : null))
+      (err, row) => (err ? reject(err) : resolve(row ? sanitizeSummaryText(row.resumen) : null))
     );
   });
 }
@@ -113,14 +113,28 @@ router.get("/paciente/:nombre", requireAuth, async (req, res) => {
     const nombreTerapeuta =
       usuario && usuario.nombre ? usuario.nombre : "Terapeuta";
 
-    // Cargar todos los registros del paciente
+    const isAdmin = usuario && usuario.rol === "admin";
+
+    // Cargar registros autorizados del paciente
     const registros = await new Promise((resolve, reject) => {
-      db.all(
-        "SELECT * FROM intervenciones WHERE paciente = ? ORDER BY id DESC",
-        [paciente],
-        (err, rows) => (err ? reject(err) : resolve(rows || []))
-      );
+      if (isAdmin) {
+        db.all(
+          "SELECT * FROM intervenciones WHERE paciente = ? ORDER BY id DESC",
+          [paciente],
+          (err, rows) => (err ? reject(err) : resolve(rows || []))
+        );
+      } else {
+        db.all(
+          "SELECT * FROM intervenciones WHERE paciente = ? AND terapeuta = ? ORDER BY id DESC",
+          [paciente, nombreTerapeuta],
+          (err, rows) => (err ? reject(err) : resolve(rows || []))
+        );
+      }
     });
+
+    if (!isAdmin && registros.length === 0) {
+      return res.status(403).send("No autorizado");
+    }
 
     // Generar resumen IA y persistir
     const summary = await buildPatientSummaryAsync(paciente, registros);

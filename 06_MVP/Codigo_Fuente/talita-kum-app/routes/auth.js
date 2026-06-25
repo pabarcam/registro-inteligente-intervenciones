@@ -1,5 +1,11 @@
 const express = require("express");
 const db = require("../config/db");
+const {
+  hashPassword,
+  isLegacyPlaintextMatch,
+  stripPassword,
+  verifyPassword,
+} = require("../utils/passwords");
 
 const router = express.Router();
 
@@ -16,26 +22,38 @@ router.post("/login-admin", (req, res) => {
   const password = (req.body.password || "").trim();
 
   if (!correo || !password) {
-    return res.render("loginAdmin", { error: "Complete correo y contraseña" });
+    return res.render("loginAdmin", { error: "Complete correo y contrasena" });
   }
 
-  db.get(
-    "SELECT * FROM usuarios WHERE correo = ? AND password = ?",
-    [correo, password],
-    (err, usuario) => {
-      if (err) {
-        console.error(err);
-        return res.render("loginAdmin", { error: "No se pudo validar el usuario" });
-      }
-
-      if (!usuario) {
-        return res.render("loginAdmin", { error: "Credenciales inválidas" });
-      }
-
-      req.session.usuario = usuario;
-      return res.redirect("/intervenciones/dashboard");
+  db.get("SELECT * FROM usuarios WHERE correo = ?", [correo], (err, usuario) => {
+    if (err) {
+      console.error(err);
+      return res.render("loginAdmin", { error: "No se pudo validar el usuario" });
     }
-  );
+
+    const validPassword =
+      usuario &&
+      (verifyPassword(password, usuario.password) ||
+        isLegacyPlaintextMatch(password, usuario.password));
+
+    if (!validPassword) {
+      return res.render("loginAdmin", { error: "Credenciales invalidas" });
+    }
+
+    if (isLegacyPlaintextMatch(password, usuario.password)) {
+      db.run("UPDATE usuarios SET password = ? WHERE id = ?", [hashPassword(password), usuario.id]);
+    }
+
+    return req.session.regenerate((sessionErr) => {
+      if (sessionErr) {
+        console.error(sessionErr);
+        return res.render("loginAdmin", { error: "No se pudo iniciar la sesion" });
+      }
+
+      req.session.usuario = stripPassword(usuario);
+      return res.redirect("/intervenciones/dashboard");
+    });
+  });
 });
 
 router.get("/logout", (req, res) => {
