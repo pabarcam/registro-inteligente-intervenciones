@@ -23,6 +23,23 @@ db.serialize(() => {
   `);
 
   db.run(`
+    CREATE TABLE IF NOT EXISTS terapeutas (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nombre TEXT,
+      correo TEXT UNIQUE,
+      password TEXT,
+      especialidad TEXT,
+      aprobado INTEGER DEFAULT 0
+    )
+  `);
+
+  db.run(`ALTER TABLE terapeutas ADD COLUMN aprobado INTEGER DEFAULT 0`, [], (err) => {
+    if (err && !/duplicate column name/i.test(err.message)) {
+      console.error(err);
+    }
+  });
+
+  db.run(`
     CREATE TABLE IF NOT EXISTS intervenciones (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       paciente TEXT,
@@ -31,7 +48,23 @@ db.serialize(() => {
       descripcion TEXT,
       objetivo TEXT,
       acuerdos TEXT,
-      observaciones TEXT
+      observaciones TEXT,
+      audio_path TEXT
+    )
+  `);
+
+  db.run(`ALTER TABLE intervenciones ADD COLUMN audio_path TEXT`, [], (err) => {
+    if (err && !/duplicate column name/i.test(err.message)) {
+      console.error(err);
+    }
+  });
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS resumenes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      paciente TEXT UNIQUE,
+      resumen TEXT,
+      fecha_actualizacion TEXT
     )
   `);
 
@@ -40,6 +73,15 @@ db.serialize(() => {
       db.run(
         "INSERT INTO usuarios (nombre, correo, password, rol) VALUES (?, ?, ?, ?)",
         ["Administrador", "admin@talita.com", "123456", "admin"]
+      );
+    }
+  });
+
+  db.get("SELECT COUNT(*) AS count FROM terapeutas", [], (err, row) => {
+    if (!err && row && row.count === 0) {
+      db.run(
+        "INSERT INTO terapeutas (nombre, correo, password, especialidad) VALUES (?, ?, ?, ?)",
+        ["Dra. Valeria Ramos", "terapeuta@talita.com", "123456", "Salud mental"]
       );
     }
   });

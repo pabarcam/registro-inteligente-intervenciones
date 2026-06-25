@@ -5,13 +5,8 @@ function buildPatientSummary(paciente, registros = []) {
 
   const total = registros.length;
   const ultimos = registros.slice(-2).map((item) => item.descripcion || 'Sin descripción').join(', ');
-  const objetivos = registros
-    .map((item) => item.objetivo)
-    .filter(Boolean)
-    .slice(0, 3)
-    .join('; ');
 
-  return `Resumen de ${paciente}: ${total} intervenciones registradas. Últimos registros: ${ultimos}. Objetivos principales: ${objetivos || 'No especificados'}.`;
+  return `Resumen de ${paciente}: ${total} intervenciones registradas. Últimos registros: ${ultimos}.`;
 }
 
 async function buildPatientSummaryAsync(paciente, registros = []) {

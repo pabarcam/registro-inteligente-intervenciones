@@ -2,11 +2,13 @@ require("dotenv").config();
 
 const path = require("path");
 const express = require("express");
+const fileUpload = require("express-fileupload");
 const session = require("express-session");
 
 const authRoutes = require("./routes/auth");
 const dashboardRoutes = require("./routes/dashboard");
 const intervencionesRoutes = require("./routes/intervenciones");
+const profesionalesRoutes = require("./routes/profesionales");
 const voiceRoutes = require("./routes/voice");
 
 const app = express();
@@ -15,6 +17,8 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(fileUpload());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
@@ -28,6 +32,7 @@ app.use(
 app.use("/", authRoutes);
 app.use("/intervenciones", dashboardRoutes);
 app.use("/intervenciones", intervencionesRoutes);
+app.use("/profesionales", profesionalesRoutes);
 app.use("/api/voice", voiceRoutes);
 
 app.use((req, res) => {

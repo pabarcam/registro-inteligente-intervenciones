@@ -2,63 +2,661 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Nueva intervención - Talita Kum</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nueva intervención — Talita-Kum</title>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;500;600;700&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --naranja: #ff6f00;
+      --naranja-light: #fff3e0;
+      --negro: #111111;
+      --blanco: #ffffff;
+      --gris-claro: #f9f6f2;
+      --borde: #e0d8cf;
+      --sombra: 0 8px 32px rgba(0,0,0,0.10);
+      --radio: 20px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    h1, h2, h3, h4, .nav-brand { font-family: 'Merriweather', serif; }
+
+    body {
+      font-family: 'Merriweather Sans', sans-serif;
+      background: var(--gris-claro);
+      color: var(--negro);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ─────────────────────────────────── */
+    nav {
+      background: var(--blanco);
+      border-bottom: 1px solid rgba(0,0,0,0.06); box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+      padding: 14px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-brand {
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-brand span { color: var(--naranja); }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-decoration: none;
+      color: var(--negro);
+      background: var(--blanco);
+      transition: background 0.18s, color 0.18s;
+    }
+
+    .btn-back:hover { background: var(--negro); color: var(--blanco); }
+
+    /* ── LAYOUT ──────────────────────────────── */
+    .page {
+      max-width: 760px;
+      margin: 40px auto;
+      padding: 0 20px 60px;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .page-sub {
+      color: #6b6b6b;
+      font-size: 0.95rem;
+      margin-bottom: 32px;
+    }
+
+    /* ── TARJETA GRABACIÓN ───────────────────── */
+    .rec-card {
+      background: var(--blanco);
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: var(--radio);
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--sombra);
+    }
+
+    .rec-card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rec-card p {
+      color: #6b6b6b;
+      font-size: 0.875rem;
+      margin-bottom: 20px;
+    }
+
+    .rec-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* Botón principal naranja */
+    .btn-rec {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 11px 24px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-rec:active { transform: scale(0.97); }
+
+    .btn-primary-rec {
+      background: var(--naranja);
+      color: var(--blanco);
+      border-color: var(--naranja);
+    }
+
+    .btn-primary-rec:hover { background: #e65f00; border-color: #e65f00; }
+    .btn-primary-rec.recording { background: #c62828; border-color: #c62828; animation: pulse 1.2s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(198,40,40,0.4); }
+      50%       { box-shadow: 0 0 0 10px rgba(198,40,40,0); }
+    }
+
+    .btn-ghost-rec {
+      background: var(--blanco);
+      color: var(--negro);
+      border-color: var(--negro);
+    }
+
+    .btn-ghost-rec:hover { background: var(--negro); color: var(--blanco); }
+    .btn-ghost-rec:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .rec-status {
+      font-size: 0.85rem;
+      color: #6b6b6b;
+      font-weight: 500;
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot-live {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #c62828;
+      animation: blink 1s infinite;
+      display: none;
+    }
+
+    @keyframes blink { 0%, 100% { opacity:1; } 50% { opacity:0.2; } }
+
+    audio#audioPreview {
+      width: 100%;
+      margin-top: 16px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    /* ── TARJETA FORMULARIO ──────────────────── */
+    .form-card {
+      background: var(--blanco);
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: var(--radio);
+      padding: 28px;
+      box-shadow: var(--sombra);
+    }
+
+    .form-card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .field-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: 7px;
+      color: var(--negro);
+    }
+
+    label .required { color: var(--naranja); margin-left: 2px; }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--borde);
+      border-radius: 12px;
+      font-family: 'Merriweather Sans', sans-serif;
+      font-size: 0.95rem;
+      color: var(--negro);
+      background: var(--blanco);
+      outline: none;
+      transition: border-color 0.18s;
+      resize: vertical;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus { border-color: var(--naranja); }
+
+    textarea {
+      min-height: 260px;
+      line-height: 1.65;
+    }
+
+    /* Chip de terapeuta */
+    .terapeuta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--naranja-light);
+      border: 1.5px solid var(--naranja);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--naranja);
+      margin-bottom: 20px;
+    }
+
+    /* Botones de formulario */
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 2px solid var(--borde);
+    }
+
+    .btn-save {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 13px 28px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: 2px solid var(--naranja);
+      background: var(--naranja);
+      color: var(--blanco);
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+
+    .btn-save:hover { background: #e65f00; border-color: #e65f00; }
+
+    .btn-listen {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 13px 24px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 1px solid rgba(0,0,0,0.06);
+      background: var(--blanco);
+      color: var(--negro);
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+
+    .btn-listen:hover { background: var(--negro); color: var(--blanco); }
+
+    /* Toast feedback */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--negro);
+      color: var(--blanco);
+      padding: 12px 22px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* Autocomplete dropdown */
+    .autocomplete-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--blanco);
+      border: 2px solid var(--borde);
+      border-radius: 12px;
+      margin-top: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: var(--sombra);
+      display: none;
+    }
+    .autocomplete-item {
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      border-bottom: 1px solid var(--borde);
+    }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:hover { background: var(--naranja-light); color: var(--naranja); }
+  </style>
 </head>
 <body>
-  <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Nueva Intervención</h2>
-      <a href="/intervenciones/dashboard" class="btn btn-outline-secondary">Volver al dashboard</a>
+
+  <% if (typeof flashError !== 'undefined' && flashError) { %>
+  <div id="flashErrorBanner" style="
+    position:fixed; top:20px; left:50%; transform:translateX(-50%);
+    background:#c62828; color:#fff; padding:14px 28px; border-radius:999px;
+    font-weight:700; font-size:0.95rem; z-index:9999;
+    display:flex; align-items:center; gap:10px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.22);
+    animation: slideDown 0.4s ease;
+  ">
+    <span style="font-size:1.1rem;">⚠️</span>
+    <%= flashError %>
+  </div>
+  <script>
+    setTimeout(() => {
+      const b = document.getElementById('flashErrorBanner');
+      if (b) { b.style.transition='opacity 0.4s'; b.style.opacity='0'; setTimeout(()=>b.remove(),400); }
+    }, 6000);
+  </script>
+  <% } %>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-brand"><img src="/img/talita-kum-logo.png" alt="Talita Kum" style="height: 48px; object-fit: contain;"></div>
+    <div class="nav-actions"><a href="/intervenciones/dashboard" class="btn-back">← Volver al dashboard</a></div>
+  </nav>
+
+  <div class="page">
+    <div class="page-title">Nueva intervención</div>
+    <p class="page-sub">Graba la entrevista, transcríbela y guarda el registro del paciente.</p>
+
+    <!-- Chip terapeuta -->
+    <div class="terapeuta-chip">
+      👩‍⚕️ <%= usuario && usuario.nombre ? usuario.nombre : 'Terapeuta' %>
     </div>
 
-    <form action="/intervenciones/guardar" method="POST" class="card p-4">
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">Paciente</label>
-          <input name="paciente" class="form-control" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Terapeuta</label>
-          <input name="terapeuta" class="form-control" value="<%= usuario && usuario.nombre ? usuario.nombre : '' %>">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Fecha</label>
-          <input type="date" name="fecha" class="form-control">
-        </div>
-        <div class="col-12">
-          <label class="form-label d-flex justify-content-between align-items-center">
-            <span>Descripción</span>
-            <button type="button" class="btn btn-outline-secondary btn-sm" data-voice-target="descripcion">🎤 Dictar</button>
-          </label>
-          <textarea name="descripcion" id="descripcion" class="form-control" rows="3"></textarea>
-        </div>
-        <div class="col-12">
-          <label class="form-label d-flex justify-content-between align-items-center">
-            <span>Objetivo</span>
-            <button type="button" class="btn btn-outline-secondary btn-sm" data-voice-target="objetivo">🎤 Dictar</button>
-          </label>
-          <textarea name="objetivo" id="objetivo" class="form-control" rows="3"></textarea>
-        </div>
-        <div class="col-12">
-          <label class="form-label d-flex justify-content-between align-items-center">
-            <span>Acuerdos</span>
-            <button type="button" class="btn btn-outline-secondary btn-sm" data-voice-target="acuerdos">🎤 Dictar</button>
-          </label>
-          <textarea name="acuerdos" id="acuerdos" class="form-control" rows="3"></textarea>
-        </div>
-        <div class="col-12">
-          <label class="form-label d-flex justify-content-between align-items-center">
-            <span>Observaciones</span>
-            <button type="button" class="btn btn-outline-secondary btn-sm" data-voice-target="observaciones">🎤 Dictar</button>
-          </label>
-          <textarea name="observaciones" id="observaciones" class="form-control" rows="3"></textarea>
-        </div>
+    <!-- ── SECCIÓN GRABACIÓN ── -->
+    <div class="rec-card">
+      <h2>🎙️ Grabación de audio</h2>
+      <p>Graba la sesión, detén la grabación y descarga el archivo antes de guardar.</p>
+
+      <div class="rec-actions">
+        <button type="button" id="recordBtn" class="btn-rec btn-primary-rec">
+          🎙️ Iniciar grabación
+        </button>
+        <button type="button" id="downloadAudioBtn" class="btn-rec btn-ghost-rec" disabled>
+          ⬇️ Descargar audio
+        </button>
       </div>
 
-      <button class="btn btn-primary mt-4">Guardar</button>
+      <div class="rec-status">
+        <span class="dot-live" id="dotLive"></span>
+        <span id="recordStatus">Listo para iniciar</span>
+      </div>
+
+      <audio id="audioPreview" controls></audio>
+    </div>
+
+    <!-- ── FORMULARIO ── -->
+    <form action="/intervenciones/guardar" method="POST" enctype="multipart/form-data" class="form-card" id="mainForm">
+      <!-- Campos ocultos -->
+      <input type="hidden" name="terapeuta" value="<%= usuario && usuario.nombre ? usuario.nombre : '' %>">
+      <input type="hidden" name="fecha" id="fechaInput">
+      <input type="hidden" name="audioBlob" id="audioBlobInput">
+
+      <h2>📝 Registro de entrevista</h2>
+
+      <!-- Paciente -->
+      <div class="field-group" style="position:relative;">
+        <label for="paciente">Nombre del paciente <span class="required">*</span></label>
+        <input type="text" name="paciente" id="paciente" placeholder="Ej: María González" autocomplete="off" required>
+        <div id="autocompleteList" class="autocomplete-list"></div>
+        <small style="color:#888;font-size:0.8rem;margin-top:6px;display:block;">
+          Selecciona un paciente de la lista. Si no existe, ingresa el nombre y ambos apellidos para crearlo.
+        </small>
+      </div>
+
+      <!-- Entrevista -->
+      <div class="field-group">
+        <label for="descripcion">
+          Entrevista <span class="required">*</span>
+          <span id="dictLabel" style="display:none;margin-left:8px;font-weight:500;
+            color:#ff6f00;font-size:0.78rem;animation:blink 1s infinite;">🎙️ Dictando en vivo…</span>
+        </label>
+        <textarea name="descripcion" id="descripcion" placeholder="Escribe aquí o graba el audio para dictado automático…"></textarea>
+      </div>
+
+      <!-- archivo de audio (hidden, llenado por JS) -->
+      <input type="file" name="audio" id="audioFile" accept="audio/*" style="display:none">
+
+      <!-- Acciones -->
+      <div class="form-actions">
+        <button type="submit" class="btn-save">💾 Guardar intervención</button>
+        <button type="button" id="listenTranscriptionBtn" class="btn-listen">🔊 Escuchar transcripción</button>
+      </div>
     </form>
   </div>
-  <script src="/js/voice-api.js"></script>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* ── Fecha automática ───────────────────── */
+    const today = new Date().toISOString().slice(0, 10);
+    document.getElementById('fechaInput').value = today;
+
+    /* ── Referencias ────────────────────────── */
+    const recordBtn        = document.getElementById('recordBtn');
+    const downloadAudioBtn = document.getElementById('downloadAudioBtn');
+    const recordStatus     = document.getElementById('recordStatus');
+    const dotLive          = document.getElementById('dotLive');
+    const audioPreview     = document.getElementById('audioPreview');
+    const audioFile        = document.getElementById('audioFile');
+    const descriptionField = document.getElementById('descripcion');
+    const dictLabel        = document.getElementById('dictLabel');
+    const listenBtn        = document.getElementById('listenTranscriptionBtn');
+    const toast            = document.getElementById('toast');
+
+    let mediaRecorder, chunks = [], stream, recordedBlob = null;
+    let recognition = null;
+    let recognitionActive = false;
+    let transcriptBase = '';   // texto confirmado antes de la grabación actual
+
+    function showToast(msg, ms = 2800) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), ms);
+    }
+
+    /* ── SpeechRecognition (dictado) ────────── */
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const hasSpeech = !!SpeechRecognition;
+
+    function initRecognition() {
+      if (!hasSpeech) return null;
+      const rec = new SpeechRecognition();
+      rec.lang = 'es-ES';
+      rec.continuous = true;
+      rec.interimResults = true;
+
+      rec.onresult = (event) => {
+        let interim = '';
+        let final = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const t = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            final += t + ' ';
+          } else {
+            interim += t;
+          }
+        }
+        // Si hay resultados finales, los agregamos a la base
+        if (final) transcriptBase += final;
+        // Mostrar base confirmada + texto interino en gris
+        descriptionField.value = transcriptBase + interim;
+      };
+
+      rec.onerror = (e) => {
+        if (e.error !== 'no-speech') {
+          console.warn('[SpeechRecognition]', e.error);
+          showToast('⚠️ Error de reconocimiento: ' + e.error);
+        }
+      };
+
+      rec.onend = () => {
+        // Si la grabación sigue activa, reiniciamos automáticamente
+        if (recognitionActive) {
+          try { rec.start(); } catch (_) {}
+        }
+      };
+
+      return rec;
+    }
+
+    /* ── Iniciar grabación ──────────────────── */
+    async function startRecording() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        chunks = [];
+
+        mediaRecorder.ondataavailable = e => chunks.push(e.data);
+        mediaRecorder.onstop = () => {
+          recordedBlob = new Blob(chunks, { type: 'audio/webm' });
+          const file = new File([recordedBlob], 'entrevista.webm', { type: 'audio/webm' });
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          audioFile.files = dt.files;
+
+          audioPreview.src = URL.createObjectURL(recordedBlob);
+          audioPreview.style.display = 'block';
+          recordStatus.textContent = 'Grabación lista ✓';
+          dotLive.style.display = 'none';
+          recordBtn.textContent = '🎙️ Nueva grabación';
+          recordBtn.classList.remove('recording');
+          downloadAudioBtn.disabled = false;
+          showToast('✅ Audio grabado y transcripción completa');
+          if (dictLabel) dictLabel.style.display = 'none';
+        };
+
+        mediaRecorder.start();
+        recordStatus.textContent = hasSpeech
+          ? 'Grabando y transcribiendo… habla claramente'
+          : 'Grabando… (dictado no disponible en este navegador)';
+        dotLive.style.display = 'inline-block';
+        recordBtn.textContent = '⏹️ Detener grabación';
+        recordBtn.classList.add('recording');
+
+        // Guardar texto previo como base
+        transcriptBase = descriptionField.value
+          ? descriptionField.value.trimEnd() + '\n'
+          : '';
+
+        // Arrancar SpeechRecognition
+        if (hasSpeech) {
+          recognition = initRecognition();
+          recognitionActive = true;
+          recognition.start();
+          if (dictLabel) dictLabel.style.display = 'inline';
+        }
+
+      } catch (err) {
+        recordStatus.textContent = 'No se pudo acceder al micrófono';
+        showToast('⚠️ No fue posible acceder al micrófono');
+        console.error(err);
+      }
+    }
+
+    /* ── Botón grabar/detener ────────────────── */
+    recordBtn.addEventListener('click', async () => {
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        // Detener grabación
+        recognitionActive = false;
+        if (recognition) {
+          try { recognition.stop(); } catch (_) {}
+        }
+        mediaRecorder.stop();
+        stream.getTracks().forEach(t => t.stop());
+        return;
+      }
+      await startRecording();
+    });
+
+    /* ── Descargar audio ────────────────────── */
+    downloadAudioBtn.addEventListener('click', () => {
+      if (!recordedBlob) { showToast('⚠️ Primero graba el audio'); return; }
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(recordedBlob);
+      link.download = `entrevista-${today}.webm`;
+      link.click();
+      showToast('⬇️ Descarga iniciada');
+    });
+
+    /* ── Escuchar transcripción ─────────────── */
+    listenBtn.addEventListener('click', () => {
+      const text = descriptionField.value.trim();
+      if (!text) { showToast('⚠️ Primero escribe la transcripción'); return; }
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.lang = 'es-ES';
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utt);
+      showToast('🔊 Reproduciendo transcripción…');
+    });
+
+    /* ── Autocomplete Pacientes ──────────────── */
+    const pacienteInput = document.getElementById('paciente');
+    const autocompleteList = document.getElementById('autocompleteList');
+    let debounceTimer;
+
+    pacienteInput.addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      const val = this.value;
+      
+      if (!val) {
+        autocompleteList.style.display = 'none';
+        return;
+      }
+      
+      debounceTimer = setTimeout(async () => {
+        try {
+          const res = await fetch(`/intervenciones/api/pacientes?q=${encodeURIComponent(val)}`);
+          const pacientes = await res.json();
+          
+          autocompleteList.innerHTML = '';
+          if (pacientes.length > 0) {
+            pacientes.forEach(p => {
+              const div = document.createElement('div');
+              div.className = 'autocomplete-item';
+              div.textContent = p.nombre;
+              div.onclick = function() {
+                pacienteInput.value = p.nombre;
+                autocompleteList.style.display = 'none';
+              };
+              autocompleteList.appendChild(div);
+            });
+            autocompleteList.style.display = 'block';
+          } else {
+            autocompleteList.style.display = 'none';
+          }
+        } catch(err) {
+          console.error('Error fetching patients:', err);
+        }
+      }, 300); // 300ms debounce
+    });
+
+    // Cerrar si hace click fuera
+    document.addEventListener('click', function (e) {
+      if (e.target !== pacienteInput && e.target !== autocompleteList) {
+        autocompleteList.style.display = 'none';
+      }
+    });
+
+  </script>
 </body>
 </html>
