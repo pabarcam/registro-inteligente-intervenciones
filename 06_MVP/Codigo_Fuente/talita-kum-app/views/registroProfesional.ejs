@@ -40,7 +40,12 @@
       </div>
       <div class="mb-3">
         <label class="form-label">Contraseña</label>
-        <input type="password" name="password" class="form-control" required>
+        <input type="password" name="password" class="form-control" required minlength="10" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{10,}$" title="Mínimo 10 caracteres, incluir mayúscula, minúscula, número y símbolo.">
+        <div class="form-text">Debe tener mínimo 10 caracteres, incluir mayúscula, minúscula, número y símbolo.</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Confirmar contraseña</label>
+        <input type="password" name="confirmarPassword" class="form-control" required minlength="10">
       </div>
       <div class="mb-3">
         <label class="form-label">Especialidad</label>

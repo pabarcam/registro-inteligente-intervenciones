@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { buildPatientSummary, buildPatientSummaryAsync } = require('../utils/ia');
+const { buildPatientSummary, buildPatientSummaryAsync, parseSummarySections } = require('../utils/ia');
 
 test('buildPatientSummary devuelve un resumen claro con los datos básicos', () => {
   const registros = [
@@ -42,4 +42,19 @@ test('buildPatientSummaryAsync usa el fallback local cuando no hay API configura
 
   assert.match(resumen, /Ana/);
   assert.match(resumen, /1 intervenciones/);
+});
+
+test('parseSummarySections separa las secciones del resumen generado por IA', () => {
+  const resumen = `## 1. Intervenciones y fechas
+Se registró una sesión.
+## 2. Criticidad
+Alta. Se observó ansiedad.
+## 3. Datos importantes de sesiones anteriores
+No hay registros previos.`;
+
+  const secciones = parseSummarySections(resumen);
+
+  assert.equal(secciones.length, 3);
+  assert.equal(secciones[0].title, '1. Intervenciones y fechas');
+  assert.match(secciones[1].content, /Alta/);
 });

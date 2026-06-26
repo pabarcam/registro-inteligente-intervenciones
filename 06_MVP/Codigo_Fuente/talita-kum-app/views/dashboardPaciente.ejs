@@ -163,6 +163,35 @@
 
     .ia-card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; opacity: 0.85; }
 
+    .ia-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .ia-section {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+
+    .ia-section__title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+      color: #ffd0a3;
+    }
+
+    .ia-section__content {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      opacity: 0.92;
+      white-space: pre-wrap;
+    }
+
     .ia-text {
       font-size: 0.95rem;
       line-height: 1.75;
@@ -185,17 +214,18 @@
     .registro-card {
       background: var(--blanco);
       border: 1px solid rgba(0,0,0,0.06);
-      border-radius: 16px;
+      border-radius: 18px;
       margin-bottom: 16px;
       overflow: hidden;
       box-shadow: var(--sombra);
       transition: box-shadow 0.18s;
+      border-left: 4px solid var(--naranja);
     }
 
     .registro-card:hover { box-shadow: 0 14px 40px rgba(0,0,0,0.13); }
 
     .registro-header {
-      background: var(--negro);
+      background: linear-gradient(90deg, #111111 0%, #2c1d0a 100%);
       color: var(--blanco);
       padding: 12px 20px;
       display: flex;
@@ -219,6 +249,9 @@
 
     .registro-body {
       padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .registro-body p {
@@ -228,9 +261,32 @@
       white-space: pre-wrap;
     }
 
+    .registro-pill {
+      display: inline-flex;
+      align-self: flex-start;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--naranja-light);
+      color: var(--naranja);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .registro-detail {
+      padding: 10px 12px;
+      background: #fcfaf7;
+      border: 1px solid var(--borde);
+      border-radius: 12px;
+      font-size: 0.88rem;
+      color: #4f463d;
+      line-height: 1.6;
+    }
+
     .registro-audio {
-      margin-top: 14px;
-      padding-top: 14px;
+      margin-top: 4px;
+      padding-top: 10px;
       border-top: 1.5px solid var(--borde);
     }
 
@@ -295,7 +351,19 @@
     <div class="ia-card">
       <div class="ia-label">✦ Análisis IA</div>
       <h2>Resumen clínico del paciente</h2>
-      <p class="ia-text"><%= summary && summary.trim() ? summary : 'Cargando análisis clínico… Agrega más registros para obtener un resumen detallado.' %></p>
+      <% const sections = typeof summary === 'string' && summary.trim() ? parseSummarySections(summary) : []; %>
+      <% if (sections.length > 0) { %>
+        <div class="ia-grid">
+          <% sections.forEach((section) => { %>
+            <div class="ia-section">
+              <div class="ia-section__title"><%= section.title %></div>
+              <div class="ia-section__content"><%= section.content %></div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="ia-text"><%= summary && summary.trim() ? summary : 'Cargando análisis clínico… Agrega más registros para obtener un resumen detallado.' %></p>
+      <% } %>
     </div>
 
     <!-- REGISTROS COMPLETOS -->
@@ -314,7 +382,17 @@
             <span class="num">Sesión #<%= totalReg - i %></span>
           </div>
           <div class="registro-body">
+            <span class="registro-pill">Seguimiento clínico</span>
             <p><%= item.descripcion || 'Sin descripción registrada.' %></p>
+            <% if (item.objetivo) { %>
+              <div class="registro-detail"><strong>Objetivo:</strong> <%= item.objetivo %></div>
+            <% } %>
+            <% if (item.acuerdos) { %>
+              <div class="registro-detail"><strong>Acuerdos:</strong> <%= item.acuerdos %></div>
+            <% } %>
+            <% if (item.observaciones) { %>
+              <div class="registro-detail"><strong>Observaciones:</strong> <%= item.observaciones %></div>
+            <% } %>
             <% if (item.audio_path) { %>
               <div class="registro-audio">
                 <label>🎙️ Audio de sesión</label>

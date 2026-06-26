@@ -5,6 +5,7 @@ const {
   hashPassword,
   isLegacyPlaintextMatch,
   stripPassword,
+  validatePasswordPolicy,
   verifyPassword,
 } = require("../utils/passwords");
 
@@ -65,15 +66,44 @@ router.get("/registro", (req, res) => {
 });
 
 router.post("/registro", (req, res) => {
-  const { nombre, correo, password, especialidad } = req.body;
+  const { nombre, correo, password, confirmarPassword, especialidad } = req.body;
+  const nombreTrim = (nombre || "").trim();
+  const correoTrim = (correo || "").trim().toLowerCase();
+  const passwordTrim = (password || "").trim();
+  const confirmarPasswordTrim = (confirmarPassword || "").trim();
+  const especialidadTrim = (especialidad || "").trim();
 
-  if (!nombre || !correo || !password || !especialidad) {
-    return res.render("registroProfesional", { error: "Complete todos los campos", message: null });
+  if (!nombreTrim || !correoTrim || !passwordTrim || !confirmarPasswordTrim || !especialidadTrim) {
+    return res.render("registroProfesional", {
+      error: "Complete todos los campos",
+      message: null,
+    });
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoTrim)) {
+    return res.render("registroProfesional", {
+      error: "Ingrese un correo institucional válido.",
+      message: null,
+    });
+  }
+
+  if (passwordTrim !== confirmarPasswordTrim) {
+    return res.render("registroProfesional", {
+      error: "Las contraseñas no coinciden.",
+      message: null,
+    });
+  }
+
+  if (!validatePasswordPolicy(passwordTrim)) {
+    return res.render("registroProfesional", {
+      error: "La contraseña debe tener al menos 10 caracteres, incluir mayúscula, minúscula, número y símbolo.",
+      message: null,
+    });
   }
 
   db.run(
     "INSERT INTO terapeutas (nombre, correo, password, especialidad, aprobado) VALUES (?, ?, ?, ?, 0)",
-    [nombre, correo, hashPassword(password), especialidad],
+    [nombreTrim, correoTrim, hashPassword(passwordTrim), especialidadTrim],
     (err) => {
       if (err) {
         console.error(err);

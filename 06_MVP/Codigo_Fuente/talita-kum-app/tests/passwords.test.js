@@ -5,6 +5,7 @@ const {
   isLegacyPlaintextMatch,
   isPasswordHash,
   stripPassword,
+  validatePasswordPolicy,
   verifyPassword,
 } = require("../utils/passwords");
 
@@ -28,4 +29,12 @@ test("stripPassword evita guardar hashes en la sesion", () => {
     id: 1,
     correo: "a@b.cl",
   });
+});
+
+test("validatePasswordPolicy exige longitud y complejidad minima", () => {
+  assert.equal(validatePasswordPolicy("Abcdef12!a"), true);
+  assert.equal(validatePasswordPolicy("abc123!"), false);
+  assert.equal(validatePasswordPolicy("ABCDEFGHIJ"), false);
+  assert.equal(validatePasswordPolicy("Abcdefghi"), false);
+  assert.equal(validatePasswordPolicy("Abcdef12"), false);
 });

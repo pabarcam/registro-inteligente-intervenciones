@@ -1,7 +1,7 @@
 const express = require("express");
 const db = require("../config/db");
 const { requireAuth } = require("../middleware/auth");
-const { buildPatientSummaryAsync, sanitizeSummaryText } = require("../utils/ia");
+const { buildPatientSummaryAsync, sanitizeSummaryText, parseSummarySections } = require("../utils/ia");
 
 const router = express.Router();
 
@@ -146,6 +146,7 @@ router.get("/paciente/:nombre", requireAuth, async (req, res) => {
       summary,
       terapeuta: nombreTerapeuta,
       usuario,
+      parseSummarySections,
     });
   } catch (error) {
     console.error(error);

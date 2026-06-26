@@ -40,10 +40,22 @@ function stripPassword(record) {
   return safeRecord;
 }
 
+function validatePasswordPolicy(password) {
+  if (typeof password !== "string") return false;
+  const value = password.trim();
+  if (value.length < 10) return false;
+  if (!/[A-Z]/.test(value)) return false;
+  if (!/[a-z]/.test(value)) return false;
+  if (!/\d/.test(value)) return false;
+  if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(value)) return false;
+  return true;
+}
+
 module.exports = {
   hashPassword,
   isLegacyPlaintextMatch,
   isPasswordHash,
   stripPassword,
+  validatePasswordPolicy,
   verifyPassword,
 };
