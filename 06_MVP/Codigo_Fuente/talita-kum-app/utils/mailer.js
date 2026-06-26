@@ -1,5 +1,13 @@
 const nodemailer = require("nodemailer");
 
+function escapeHtml(text) {
+  return String(text || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 /**
  * Crea el transporter de Nodemailer.
  * Si no hay credenciales SMTP configuradas devuelve null y el envío se omite.
@@ -65,8 +73,8 @@ async function enviarCorreoIntervencion(opts) {
 
         <h3 style="color:#ff6f00;margin-bottom:10px;">✦ Resumen generado por IA</h3>
         <div style="background:#fff8f2;border-left:4px solid #ff6f00;padding:16px;border-radius:8px;
-                    font-size:0.9rem;line-height:1.7;color:#333;">
-          ${resumenIA || "No se pudo generar el resumen en este momento."}
+                    font-size:0.9rem;line-height:1.7;color:#333;white-space:pre-wrap;">
+          ${escapeHtml(resumenIA) || "No se pudo generar el resumen en este momento."}
         </div>
 
         <hr style="border:1.5px solid #f0e8df;margin:20px 0;">

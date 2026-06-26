@@ -16,8 +16,10 @@ Aplicación web funcional orientada al registro inteligente de intervenciones te
 - `routes/`: Enrutadores para autenticación, dashboard, intervenciones, profesionales.
 - `views/`: Vistas EJS responsivas e interactivas (login, dashboard, paciente, nueva intervención, historial, admin).
 - `public/`: Archivos estáticos como el logo de la Fundación Talita Kum.
-- `utils/ia.js`: Lógica de resumen de historial clínico de pacientes.
+- `utils/ia.js`: Agente de resumen clinico estructurado (TCC, 6 secciones).
+- `utils/summaryCache.js`: Cache de resumenes en SQLite.
 - `utils/mailer.js`: Lógica de envío de correos electrónicos.
+- `docs/integracion-ia.md`: Guia de integracion del agente LLM.
 - `config/db.js`: Configuración y esquemas de la base de datos SQLite.
 
 ## Ejecución
@@ -27,7 +29,11 @@ npm start
 ```
 
 ## Variables de entorno necesarias (`.env`)
-- `SESSION_SECRET`
-- `PORT`
+Ver `.env.example` para la plantilla completa.
+
+- `SESSION_SECRET`, `PORT`
 - **Correo (SMTP)**: `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM`
-- **IA Externa (Opcional)**: `AI_SUMMARY_API_URL`, `AI_SUMMARY_API_KEY`, `AI_SUMMARY_MODEL`
+- **IA (agente resumen TCC)**: `AI_SUMMARY_API_URL`, `AI_SUMMARY_API_KEY`, `AI_SUMMARY_MODEL`
+
+## Resumen IA estructurado
+El resumen clínico se genera en **6 secciones** (intervenciones/fechas, criticidad, sesiones anteriores, última sesión, avance, enfoque TCC). Detalle en [docs/integracion-ia.md](docs/integracion-ia.md).

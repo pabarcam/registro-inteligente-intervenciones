@@ -12,9 +12,62 @@
     .btn-primary:hover { background: #e65f00; border-color: #e65f00; }
     .desc-cell { max-width: 300px; white-space: pre-wrap; font-size: 0.9rem; }
     .action-btns { display: flex; gap: 8px; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(17,17,17,0.48);
+      display: none; align-items: center; justify-content: center;
+      z-index: 1000; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 16px; width: min(640px, 100%);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.24);
+      animation: modalIn 0.2s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 24px 0; font-weight: 700; font-size: 1.1rem;
+    }
+    .modal-close {
+      background: none; border: none; font-size: 1.5rem; cursor: pointer;
+      color: #888; line-height: 1; padding: 0 4px;
+    }
+    .modal-close:hover { color: #111; }
+    .modal-body { padding: 16px 24px 20px; }
+    .modal-footer {
+      display: flex; justify-content: flex-end; gap: 10px;
+      padding: 0 24px 20px;
+    }
+    .modal-footer .btn { min-width: 120px; }
+    .modal-meta { color: #6b6b6b; font-size: 0.9rem; margin-bottom: 12px; }
+    textarea.modal-textarea {
+      width: 100%; min-height: 200px; padding: 12px 16px;
+      border: 2px solid #e0d8cf; border-radius: 12px;
+      font-family: inherit; font-size: 0.95rem; resize: vertical;
+      outline: none;
+    }
+    textarea.modal-textarea:focus { border-color: #ff6f00; }
+
+    .flash-toast {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      background: #111; color: #fff; padding: 14px 28px; border-radius: 999px;
+      font-weight: 700; font-size: 0.95rem; z-index: 9999;
+      display: none; animation: slideDown 0.4s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateX(-50%) translateY(-16px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    .flash-toast.show { display: flex; align-items: center; gap: 10px; }
   </style>
 </head>
 <body>
+  <div class="flash-toast" id="flashToast"></div>
+
   <div class="panel">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div class="d-flex align-items-center gap-3">
@@ -43,43 +96,24 @@
           </thead>
           <tbody>
             <% intervenciones.forEach((item) => { %>
-              <tr>
+              <tr id="row-<%= item.id %>">
                 <td class="fw-bold"><%= item.paciente %></td>
                 <td>Sesión #<%= item.sesionNumber %></td>
                 <td><%= item.fecha %></td>
                 <td class="desc-cell"><%= item.descripcion || 'Sin descripción' %></td>
                 <td>
                   <div class="action-btns">
-                    <!-- Botón Editar -->
-                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal-<%= item.id %>">
+                    <button type="button" class="btn btn-sm btn-outline-primary btn-edit"
+                      data-id="<%= item.id %>"
+                      data-paciente="<%= item.paciente %>"
+                      data-fecha="<%= item.fecha %>"
+                      data-descripcion="<%= item.descripcion %>">
                       Editar
                     </button>
-                    <!-- Formulario Eliminar -->
-                    <form action="/intervenciones/eliminar/<%= item.id %>" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar esta intervención?');">
-                      <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-                    </form>
-                  </div>
-
-                  <!-- Modal Editar -->
-                  <div class="modal fade" id="editModal-<%= item.id %>" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                      <div class="modal-content">
-                        <form action="/intervenciones/editar/<%= item.id %>" method="POST">
-                          <div class="modal-header">
-                            <h5 class="modal-title">Editar Descripción</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                          </div>
-                          <div class="modal-body">
-                            <p class="mb-2"><strong>Paciente:</strong> <%= item.paciente %> — <strong>Fecha:</strong> <%= item.fecha %></p>
-                            <textarea name="descripcion" class="form-control" rows="10" required><%= item.descripcion %></textarea>
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Guardar cambios</button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-delete"
+                      data-id="<%= item.id %>">
+                      Eliminar
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -90,6 +124,137 @@
     <% } %>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>Editar Descripción</span>
+        <button type="button" class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-meta" id="modalMeta"></div>
+        <textarea class="modal-textarea" id="modalDescripcion" required></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" id="modalCancel">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="modalSave">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal-box" style="width: min(400px, 100%);">
+      <div class="modal-header">
+        <span>Eliminar intervención</span>
+        <button type="button" class="modal-close" id="deleteModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: #555; margin: 0;">¿Seguro que deseas eliminar permanentemente esta intervención?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" id="deleteCancel">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="deleteConfirm">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let editingId = null;
+    let deletingId = null;
+
+    function showFlash(msg, ok) {
+      const el = document.getElementById('flashToast');
+      el.textContent = (ok ? '✅ ' : '⚠️ ') + msg;
+      el.style.background = ok ? '#111' : '#c62828';
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 4000);
+    }
+
+    // ── EDIT MODAL ──
+    document.querySelectorAll('.btn-edit').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        editingId = this.dataset.id;
+        document.getElementById('modalMeta').textContent = this.dataset.paciente + ' — ' + this.dataset.fecha;
+        document.getElementById('modalDescripcion').value = this.dataset.descripcion || '';
+        document.getElementById('editModal').classList.add('open');
+      });
+    });
+
+    function closeEdit() {
+      document.getElementById('editModal').classList.remove('open');
+      editingId = null;
+    }
+    document.getElementById('modalClose').addEventListener('click', closeEdit);
+    document.getElementById('modalCancel').addEventListener('click', closeEdit);
+    document.getElementById('editModal').addEventListener('click', function(e) {
+      if (e.target === this) closeEdit();
+    });
+
+    document.getElementById('modalSave').addEventListener('click', async function() {
+      const id = editingId;
+      const descripcion = document.getElementById('modalDescripcion').value.trim();
+      if (!descripcion) { showFlash('La descripción es obligatoria', false); return; }
+      this.disabled = true;
+      this.textContent = 'Guardando…';
+      try {
+        const res = await fetch('/intervenciones/editar/' + id, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'descripcion=' + encodeURIComponent(descripcion)
+        });
+        const data = await res.json();
+        if (!data.ok) { showFlash(data.error || 'Error al guardar', false); this.disabled = false; this.textContent = 'Guardar cambios'; return; }
+        closeEdit();
+        showFlash('Intervención actualizada correctamente', true);
+        setTimeout(function() { location.reload(); }, 800);
+      } catch (err) {
+        showFlash('Error de conexión', false);
+        this.disabled = false;
+        this.textContent = 'Guardar cambios';
+      }
+    });
+
+    // ── DELETE MODAL ──
+    document.querySelectorAll('.btn-delete').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        deletingId = this.dataset.id;
+        document.getElementById('deleteModal').classList.add('open');
+      });
+    });
+
+    function closeDelete() {
+      document.getElementById('deleteModal').classList.remove('open');
+      deletingId = null;
+    }
+    document.getElementById('deleteModalClose').addEventListener('click', closeDelete);
+    document.getElementById('deleteCancel').addEventListener('click', closeDelete);
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+      if (e.target === this) closeDelete();
+    });
+
+    document.getElementById('deleteConfirm').addEventListener('click', async function() {
+      const id = deletingId;
+      if (!id) return;
+      this.disabled = true;
+      this.textContent = 'Eliminando…';
+      try {
+        const res = await fetch('/intervenciones/eliminar/' + id, { method: 'POST' });
+        const data = await res.json();
+        if (!data.ok) { showFlash(data.error || 'Error al eliminar', false); this.disabled = false; this.textContent = 'Eliminar'; return; }
+        closeDelete();
+        showFlash('Intervención eliminada correctamente', true);
+        var row = document.getElementById('row-' + id);
+        if (row) row.remove();
+      } catch (err) {
+        showFlash('Error de conexión', false);
+        this.disabled = false;
+        this.textContent = 'Eliminar';
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') { closeEdit(); closeDelete(); }
+    });
+  </script>
+<script src="/js/inactivity.js"></script>
 </body>
 </html>

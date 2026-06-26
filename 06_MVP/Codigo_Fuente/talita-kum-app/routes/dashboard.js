@@ -1,50 +1,15 @@
 const express = require("express");
 const db = require("../config/db");
 const { requireAuth } = require("../middleware/auth");
-const { buildPatientSummaryAsync, sanitizeSummaryText } = require("../utils/ia");
+const { buildPatientSummaryAsync, parseSummarySections } = require("../utils/ia");
+const { persistSummary, loadSummary } = require("../utils/summaryCache");
 
 const router = express.Router();
 
-/* ── Persiste resumen en BD ──────────────────────────────── */
-function persistSummary(paciente, resumen) {
-  return new Promise((resolve, reject) => {
-    db.run(
-      `INSERT INTO resumenes (paciente, resumen, fecha_actualizacion)
-       VALUES (?, ?, ?)
-       ON CONFLICT(paciente) DO UPDATE
-         SET resumen = excluded.resumen,
-             fecha_actualizacion = excluded.fecha_actualizacion`,
-      [paciente, resumen, new Date().toISOString()],
-      (err) => (err ? reject(err) : resolve())
-    );
-  });
-}
-
-/* ── Carga resumen guardado ──────────────────────────────── */
-function loadSummary(paciente) {
-  return new Promise((resolve, reject) => {
-    db.get(
-      "SELECT resumen FROM resumenes WHERE paciente = ?",
-      [paciente],
-      (err, row) => (err ? reject(err) : resolve(row ? sanitizeSummaryText(row.resumen) : null))
-    );
-  });
-}
-
-/* ══════════════════════════════════════════════════════════
-   GET /intervenciones/dashboard
-   Dashboard principal de la terapeuta — listado de pacientes
-   ══════════════════════════════════════════════════════════ */
 router.get("/dashboard", requireAuth, async (req, res) => {
   try {
-    const usuario =
-      req.session.terapeuta || req.session.usuario || null;
-
-    // Nombre del terapeuta activo (para filtrar)
-    const nombreTerapeuta =
-      usuario && usuario.nombre ? usuario.nombre : null;
-
-    // Traer intervenciones (si es profesional, solo las suyas)
+    const usuario = req.session.terapeuta || req.session.usuario || null;
+    const nombreTerapeuta = usuario && usuario.nombre ? usuario.nombre : null;
     const isAdmin = usuario && usuario.rol === "admin";
 
     const intervenciones = await new Promise((resolve, reject) => {
@@ -63,7 +28,6 @@ router.get("/dashboard", requireAuth, async (req, res) => {
       }
     });
 
-    // Agrupar por paciente
     const pacientesMap = {};
     intervenciones.forEach((item) => {
       const nombre = (item.paciente || "Sin nombre").trim() || "Sin nombre";
@@ -71,7 +35,6 @@ router.get("/dashboard", requireAuth, async (req, res) => {
       pacientesMap[nombre].push(item);
     });
 
-    // Construir patientGroups con resumen en caché (no regenerar en dashboard)
     const patientGroups = await Promise.all(
       Object.entries(pacientesMap).map(async ([paciente, registros]) => {
         let summary = await loadSummary(paciente);
@@ -79,9 +42,7 @@ router.get("/dashboard", requireAuth, async (req, res) => {
           summary = await buildPatientSummaryAsync(paciente, registros);
           await persistSummary(paciente, summary);
         }
-        // Fecha más reciente
-        const ultimaFecha =
-          registros[0] && registros[0].fecha ? registros[0].fecha : null;
+        const ultimaFecha = registros[0] && registros[0].fecha ? registros[0].fecha : null;
         return { paciente, count: registros.length, summary, ultimaFecha };
       })
     );
@@ -101,21 +62,13 @@ router.get("/dashboard", requireAuth, async (req, res) => {
   }
 });
 
-/* ══════════════════════════════════════════════════════════
-   GET /intervenciones/paciente/:nombre
-   Dashboard individual de un paciente con resumen IA completo
-   ══════════════════════════════════════════════════════════ */
 router.get("/paciente/:nombre", requireAuth, async (req, res) => {
   try {
     const paciente = decodeURIComponent(req.params.nombre);
-    const usuario =
-      req.session.terapeuta || req.session.usuario || null;
-    const nombreTerapeuta =
-      usuario && usuario.nombre ? usuario.nombre : "Terapeuta";
-
+    const usuario = req.session.terapeuta || req.session.usuario || null;
+    const nombreTerapeuta = usuario && usuario.nombre ? usuario.nombre : "Terapeuta";
     const isAdmin = usuario && usuario.rol === "admin";
 
-    // Cargar registros autorizados del paciente
     const registros = await new Promise((resolve, reject) => {
       if (isAdmin) {
         db.all(
@@ -136,14 +89,15 @@ router.get("/paciente/:nombre", requireAuth, async (req, res) => {
       return res.status(403).send("No autorizado");
     }
 
-    // Generar resumen IA y persistir
     const summary = await buildPatientSummaryAsync(paciente, registros);
     await persistSummary(paciente, summary);
+    const sections = parseSummarySections(summary);
 
     return res.render("dashboardPaciente", {
       paciente,
       registros,
       summary,
+      sections,
       terapeuta: nombreTerapeuta,
       usuario,
     });

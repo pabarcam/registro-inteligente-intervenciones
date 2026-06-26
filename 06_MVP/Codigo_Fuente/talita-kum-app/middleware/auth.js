@@ -3,7 +3,7 @@ function requireAuth(req, res, next) {
     return next();
   }
 
-  return res.redirect("/");
+  return res.redirect("/profesionales/login");
 }
 
 module.exports = { requireAuth };

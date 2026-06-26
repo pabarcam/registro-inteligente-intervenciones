@@ -1,279 +1,194 @@
 const express = require("express");
-const fs = require("fs");
 const path = require("path");
+const multer = require("multer");
 const db = require("../config/db");
 const { requireAuth } = require("../middleware/auth");
 const { buildPatientSummaryAsync } = require("../utils/ia");
+const { persistSummary, clearSummary } = require("../utils/summaryCache");
 const { enviarCorreoIntervencion } = require("../utils/mailer");
 
 const router = express.Router();
 
-function redirectBack(req, res, fallback = "/intervenciones/dashboard") {
-  return res.redirect(req.get("Referrer") || fallback);
-}
+const storage = multer.diskStorage({
+  destination: path.join(__dirname, "..", "uploads"),
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + "-" + Math.round(Math.random() * 1e9) + ".webm";
+    cb(null, uniqueName);
+  },
+});
+const upload = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } });
 
-/* ── GET /intervenciones/nueva ───────────────────────────── */
 router.get("/nueva", requireAuth, (req, res) => {
   const usuario = req.session.terapeuta || req.session.usuario || null;
-  const flashError = req.session.flashError || null;
-  req.session.flashError = null;
-
-  res.render("nuevaIntervencion", { usuario, flashError });
+  res.render("nuevaIntervencion", { usuario });
 });
 
-/* ── POST /intervenciones/guardar ────────────────────────── */
-router.post("/guardar", requireAuth, async (req, res) => {
-  const { paciente, terapeuta, fecha, descripcion } = req.body;
+router.post("/guardar", requireAuth, upload.single("audio"), async (req, res) => {
+  const {
+    paciente,
+    terapeuta,
+    fecha,
+    descripcion,
+    objetivo,
+    acuerdos,
+    observaciones,
+  } = req.body;
 
+  const sessionUser = req.session.terapeuta || req.session.usuario || null;
   const nombreTerapeuta =
     terapeuta ||
-    (req.session.usuario && req.session.usuario.nombre) ||
-    (req.session.terapeuta && req.session.terapeuta.nombre) ||
+    (sessionUser && sessionUser.nombre) ||
     "Terapeuta";
-
+  const correoTerapeuta = sessionUser && sessionUser.correo ? sessionUser.correo : null;
   const fechaFinal = fecha || new Date().toISOString().slice(0, 10);
+  const pacienteFinal = (paciente || "").trim();
 
-  // Correo del terapeuta desde la sesión
-  const correoTerapeuta =
-    (req.session.terapeuta && req.session.terapeuta.correo) ||
-    (req.session.usuario && req.session.usuario.correo) ||
-    null;
-
-  /* ── Función interna que guarda y luego envía email ── */
-  const saveAndNotify = async (audioPath) => {
-    db.run(
-      `INSERT INTO intervenciones
-         (paciente, terapeuta, fecha, descripcion, objetivo, acuerdos, observaciones, audio_path)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [paciente, nombreTerapeuta, fechaFinal, descripcion, "", "", "", audioPath],
-      async (err) => {
-        if (err) {
-          console.error(err);
-          return res.status(500).send("No se pudo guardar la intervención");
-        }
-
-        req.session.borrarSintesis = false;
-
-        /* ── Generar resumen IA de las intervenciones del paciente ── */
-        let resumenIA = "";
-        try {
-          const registros = await new Promise((resolve, reject) => {
-            db.all(
-              "SELECT * FROM intervenciones WHERE paciente = ? ORDER BY id DESC",
-              [paciente],
-              (e, rows) => (e ? reject(e) : resolve(rows || []))
-            );
-          });
-          resumenIA = await buildPatientSummaryAsync(paciente, registros);
-        } catch (iaErr) {
-          console.error("[guardar] No se pudo generar resumen IA:", iaErr.message);
-          resumenIA = "No disponible en este momento.";
-        }
-
-        /* ── Enviar correo al terapeuta ── */
-        if (correoTerapeuta) {
-          const absAudioPath = audioPath
-            ? path.join(__dirname, "..", audioPath)
-            : null;
-
-          enviarCorreoIntervencion({
-            destinatario: correoTerapeuta,
-            terapeuta: nombreTerapeuta,
-            paciente,
-            fecha: fechaFinal,
-            descripcion,
-            resumenIA,
-            audioPath: absAudioPath,
-          }).then((result) => {
-            if (!result.ok) {
-              console.warn("[guardar] Correo no enviado:", result.razon);
-            }
-          });
-        } else {
-          console.warn("[guardar] No se encontró correo del terapeuta en sesión.");
-        }
-
-        // Redirigir al dashboard con mensaje de éxito
-        req.session.flashSuccess = "✅ Intervención guardada con éxito";
-        return res.redirect("/intervenciones/dashboard");
-      }
-    );
-  };
-
-  // Validar y registrar paciente
-  const checkPatientAndSave = (audioPath) => {
-    const pacienteStr = paciente.trim();
-    const partesNombre = pacienteStr.split(/\s+/);
-
-    db.get("SELECT * FROM pacientes WHERE LOWER(nombre) = LOWER(?)", [pacienteStr], (err, row) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Error de base de datos");
-      }
-
-      if (!row) {
-        // Paciente nuevo, requiere nombre y dos apellidos (3 palabras)
-        if (partesNombre.length < 3) {
-          req.session.flashError = "Para registrar un nuevo paciente, debe ingresar su nombre y ambos apellidos.";
-          return res.redirect("/intervenciones/nueva");
-        }
-
-        db.run("INSERT INTO pacientes (nombre) VALUES (?)", [pacienteStr], function(err) {
-          if (err) {
-            console.error(err);
-            return res.status(500).send("Error al crear paciente");
-          }
-          saveAndNotify(audioPath);
-        });
-      } else {
-        // Paciente existente
-        saveAndNotify(audioPath);
-      }
-    });
-  };
-
-  /* ── Manejar archivo de audio ── */
-  if (req.files && req.files.audio) {
-    const file = req.files.audio;
-    const uploadDir = path.join(__dirname, "..", "uploads");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    const fileName = `${Date.now()}-${file.name}`;
-    const uploadPath = path.join(uploadDir, fileName);
-    file.mv(uploadPath, (err) => {
-      if (err) {
-        console.error(err);
-        checkPatientAndSave(null);
-        return;
-      }
-      checkPatientAndSave(`/uploads/${fileName}`);
-    });
-    return;
+  if (!pacienteFinal) {
+    return res.status(400).send("El nombre del paciente es obligatorio");
   }
 
-  checkPatientAndSave(null);
+  const partes = pacienteFinal.split(/\s+/);
+  if (partes.length < 3) {
+    return res.status(400).send("Debe ingresar nombre y ambos apellidos del paciente");
+  }
+
+  const audioPath = req.file ? "/uploads/" + req.file.filename : null;
+
+  db.run(
+    `INSERT INTO intervenciones (paciente, terapeuta, fecha, descripcion, objetivo, acuerdos, observaciones, audio_path)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      pacienteFinal,
+      nombreTerapeuta,
+      fechaFinal,
+      descripcion || "",
+      objetivo || "",
+      acuerdos || "",
+      observaciones || "",
+      audioPath,
+    ],
+    async (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("No se pudo guardar la intervencion");
+      }
+
+      let resumenIA = "";
+      try {
+        await clearSummary(pacienteFinal);
+        const registros = await new Promise((resolve, reject) => {
+          db.all(
+            "SELECT * FROM intervenciones WHERE paciente = ? ORDER BY id ASC",
+            [pacienteFinal],
+            (e, rows) => (e ? reject(e) : resolve(rows || []))
+          );
+        });
+        resumenIA = await buildPatientSummaryAsync(pacienteFinal, registros);
+        await persistSummary(pacienteFinal, resumenIA);
+      } catch (iaErr) {
+        console.error("[guardar] No se pudo generar resumen IA:", iaErr.message);
+        resumenIA = "No disponible en este momento.";
+      }
+
+      if (correoTerapeuta) {
+        const audioFullPath = req.file ? path.join(__dirname, "..", "uploads", req.file.filename) : null;
+        enviarCorreoIntervencion({
+          destinatario: correoTerapeuta,
+          terapeuta: nombreTerapeuta,
+          paciente: pacienteFinal,
+          fecha: fechaFinal,
+          descripcion: descripcion || "",
+          resumenIA,
+          audioPath: audioFullPath,
+        }).then((result) => {
+          if (!result.ok) {
+            console.warn("[guardar] Correo no enviado:", result.razon);
+          }
+        });
+      }
+
+      req.session.flashSuccess = "Intervencion guardada con exito";
+      return res.redirect("/intervenciones/dashboard");
+    }
+  );
 });
 
-/* ── GET /intervenciones/api/pacientes ───────────────────── */
+// ── API: Autocomplete pacientes ────────────────────────────
 router.get("/api/pacientes", requireAuth, (req, res) => {
-  const query = (req.query.q || "").trim().toLowerCase();
-  if (!query) return res.json([]);
+  const q = (req.query.q || "").trim();
+  if (!q) return res.json([]);
 
-  const isAdmin = req.session.usuario && req.session.usuario.rol === "admin";
-  const terapeuta = req.session.terapeuta ? req.session.terapeuta.nombre : null;
-  const sql = isAdmin
-    ? "SELECT id, nombre FROM pacientes WHERE LOWER(nombre) LIKE ? ORDER BY nombre ASC"
-    : `SELECT DISTINCT p.id, p.nombre
-       FROM pacientes p
-       INNER JOIN intervenciones i ON LOWER(i.paciente) = LOWER(p.nombre)
-       WHERE LOWER(p.nombre) LIKE ? AND i.terapeuta = ?
-       ORDER BY p.nombre ASC`;
-  const params = isAdmin ? [`%${query}%`] : [`%${query}%`, terapeuta || ""];
-
-  db.all(sql, params, (err, rows) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Error en BD" });
+  db.all(
+    "SELECT DISTINCT paciente AS nombre FROM intervenciones WHERE paciente LIKE ? ORDER BY paciente LIMIT 10",
+    [`%${q}%`],
+    (err, rows) => {
+      if (err) return res.json([]);
+      res.json(rows || []);
     }
-    return res.json(rows || []);
+  );
+});
+
+// ── Eliminar intervención ─────────────────────────────────
+router.post("/eliminar/:id", requireAuth, (req, res) => {
+  const { id } = req.params;
+
+  db.get("SELECT * FROM intervenciones WHERE id = ?", [id], (err, row) => {
+    if (err || !row) return res.status(404).json({ ok: false, error: "Intervencion no encontrada" });
+
+    if (req.session.terapeuta && row.terapeuta !== req.session.terapeuta.nombre) {
+      return res.status(403).json({ ok: false, error: "No autorizado" });
+    }
+
+    if (!req.session.terapeuta && !(req.session.usuario && req.session.usuario.rol === "admin")) {
+      return res.status(403).json({ ok: false, error: "No autorizado" });
+    }
+
+    db.run("DELETE FROM intervenciones WHERE id = ?", [id], (delErr) => {
+      if (delErr) return res.status(500).json({ ok: false, error: "No se pudo eliminar" });
+
+      clearSummary(row.paciente);
+      res.json({ ok: true });
+    });
   });
 });
 
-/* ── POST /intervenciones/borrar-sintesis ────────────────── */
-router.post("/borrar-sintesis", requireAuth, (req, res) => {
-  if (req.session.usuario && req.session.usuario.rol === "admin") {
-    db.run("DELETE FROM resumenes", [], (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("No se pudo borrar las síntesis");
-      }
-      req.session.borrarSintesis = true;
-      return res.redirect("/intervenciones/dashboard");
-    });
-    return;
-  }
-  return res.status(403).send("No autorizado");
-});
-
-/* ── POST /intervenciones/borrar-todos ───────────────────── */
-router.post("/borrar-todos", requireAuth, (req, res) => {
-  if (req.session.usuario && req.session.usuario.rol === "admin") {
-    db.run("DELETE FROM intervenciones", [], (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("No se pudieron borrar las intervenciones");
-      }
-      db.run("DELETE FROM resumenes", [], (err2) => {
-        if (err2) {
-          console.error(err2);
-          return res.status(500).send("No se pudieron borrar las síntesis");
-        }
-        req.session.borrarSintesis = true;
-        return res.redirect("/intervenciones/dashboard");
-      });
-    });
-    return;
-  }
-  return res.status(403).send("No autorizado");
-});
-
-/* ── POST /intervenciones/editar/:id ───────────────────── */
+// ── Editar intervención ───────────────────────────────────
 router.post("/editar/:id", requireAuth, (req, res) => {
   const { id } = req.params;
   const { descripcion } = req.body;
-  
-  const isAdmin = req.session.usuario && req.session.usuario.rol === "admin";
-  const terapeuta = req.session.terapeuta ? req.session.terapeuta.nombre : null;
 
-  if (isAdmin || terapeuta) {
-    const sql = isAdmin
-      ? "UPDATE intervenciones SET descripcion = ? WHERE id = ?"
-      : "UPDATE intervenciones SET descripcion = ? WHERE id = ? AND terapeuta = ?";
-    const params = isAdmin ? [descripcion, id] : [descripcion, id, terapeuta];
-
-    db.run(sql, params, function(err) {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("No se pudo editar la intervención");
-      }
-      if (!isAdmin && this.changes === 0) {
-        return res.status(403).send("No autorizado");
-      }
-      return redirectBack(req, res);
-    });
-  } else {
-    return res.status(403).send("No autorizado");
+  if (!descripcion || !descripcion.trim()) {
+    return res.status(400).json({ ok: false, error: "La descripcion es obligatoria" });
   }
-});
 
-/* ── POST /intervenciones/eliminar/:id ───────────────────── */
-router.post("/eliminar/:id", requireAuth, (req, res) => {
-  const { id } = req.params;
-  
-  const isAdmin = req.session.usuario && req.session.usuario.rol === "admin";
-  const terapeuta = req.session.terapeuta ? req.session.terapeuta.nombre : null;
+  db.get("SELECT * FROM intervenciones WHERE id = ?", [id], (err, row) => {
+    if (err || !row) return res.status(404).json({ ok: false, error: "Intervencion no encontrada" });
 
-  if (isAdmin || terapeuta) {
-    const sql = isAdmin
-      ? "DELETE FROM intervenciones WHERE id = ?"
-      : "DELETE FROM intervenciones WHERE id = ? AND terapeuta = ?";
-    const params = isAdmin ? [id] : [id, terapeuta];
+    if (req.session.terapeuta && row.terapeuta !== req.session.terapeuta.nombre) {
+      return res.status(403).json({ ok: false, error: "No autorizado" });
+    }
 
-    db.run(sql, params, function(err) {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("No se pudo eliminar la intervención");
+    db.run("UPDATE intervenciones SET descripcion = ? WHERE id = ?", [descripcion.trim(), id], async (updErr) => {
+      if (updErr) return res.status(500).json({ ok: false, error: "No se pudo actualizar" });
+
+      try {
+        await clearSummary(row.paciente);
+        const registros = await new Promise((resolve, reject) => {
+          db.all(
+            "SELECT * FROM intervenciones WHERE paciente = ? ORDER BY id ASC",
+            [row.paciente],
+            (e, rows) => (e ? reject(e) : resolve(rows || []))
+          );
+        });
+        const resumenIA = await buildPatientSummaryAsync(row.paciente, registros);
+        await persistSummary(row.paciente, resumenIA);
+      } catch (iaErr) {
+        console.warn("[editar] No se pudo regenerar resumen IA:", iaErr.message);
       }
-      if (!isAdmin && this.changes === 0) {
-        return res.status(403).send("No autorizado");
-      }
-      req.session.borrarSintesis = false;
-      return redirectBack(req, res, "/profesionales/admin");
+
+      res.json({ ok: true });
     });
-  } else {
-    return res.status(403).send("No autorizado");
-  }
+  });
 });
 
 module.exports = router;

@@ -78,9 +78,11 @@
                         <button class="btn btn-sm btn-primary">Aprobar</button>
                       </form>
                     <% } %>
-                    <form action="/profesionales/admin/eliminar/<%= item.id %>" method="POST" class="d-inline" onsubmit="return confirm('Desea eliminar esta cuenta profesional?')">
-                      <button class="btn btn-sm btn-outline-dark">Eliminar</button>
-                    </form>
+                    <button class="btn btn-sm btn-outline-dark js-open-delete-pro"
+                      data-url="/profesionales/admin/eliminar/<%= item.id %>"
+                      data-nombre="<%= item.nombre %>">
+                      Eliminar
+                    </button>
                   </td>
                 </tr>
               <% }) %>
@@ -133,26 +135,62 @@
   </div>
 
   <div class="confirm-backdrop" id="deleteModal" aria-hidden="true">
-    <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteTitle">
+    <div class="confirm-dialog" role="dialog" aria-modal="true">
       <h5 id="deleteTitle">Eliminar intervenci&oacute;n</h5>
-      <p>Esta seguro que desea eliminar permanentemente esta intervencion?</p>
-      <form id="deleteForm" method="POST">
-        <div class="confirm-actions">
-          <button type="button" class="btn btn-outline-dark" id="cancelDelete">Cancelar</button>
-          <button type="submit" class="btn btn-danger">Eliminar</button>
-        </div>
-      </form>
+      <p id="deleteMessage">¿Seguro que desea eliminar permanentemente esta intervenci&oacute;n?</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-outline-dark" id="cancelDelete">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+      </div>
     </div>
   </div>
 
+  <div id="adminToast" class="admin-toast"></div>
+  <style>
+    .admin-toast {
+      position:fixed; top:20px; left:50%; transform:translateX(-50%);
+      color:#fff; padding:14px 28px; border-radius:999px;
+      font-weight:700; font-size:0.95rem; z-index:9999;
+      display:none; align-items:center; gap:10px;
+      animation: slideDown 0.4s ease;
+    }
+    @keyframes slideDown { from { opacity:0; transform:translateX(-50%) translateY(-16px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+  </style>
+
   <script>
+    let deleteUrl = null;
+    let deleteType = null;
     const deleteModal = document.getElementById("deleteModal");
-    const deleteForm = document.getElementById("deleteForm");
+    const deleteTitle = document.getElementById("deleteTitle");
+    const deleteMessage = document.getElementById("deleteMessage");
     const cancelDelete = document.getElementById("cancelDelete");
+    const confirmBtn = document.getElementById("confirmDeleteBtn");
+    const adminToast = document.getElementById("adminToast");
+
+    function showAdminToast(msg, err) {
+      adminToast.textContent = (err ? '⚠️ ' : '✅ ') + msg;
+      adminToast.style.background = err ? '#c62828' : '#111';
+      adminToast.style.display = 'flex';
+      setTimeout(() => { adminToast.style.display = 'none'; }, 4000);
+    }
 
     document.querySelectorAll(".js-open-delete").forEach((button) => {
       button.addEventListener("click", () => {
-        deleteForm.action = button.dataset.deleteUrl;
+        deleteUrl = button.dataset.deleteUrl;
+        deleteType = 'intervencion';
+        deleteTitle.textContent = 'Eliminar intervenci\u00f3n';
+        deleteMessage.textContent = '\u00bfSeguro que desea eliminar permanentemente esta intervenci\u00f3n?';
+        deleteModal.classList.add("is-open");
+        deleteModal.setAttribute("aria-hidden", "false");
+      });
+    });
+
+    document.querySelectorAll(".js-open-delete-pro").forEach((button) => {
+      button.addEventListener("click", () => {
+        deleteUrl = button.dataset.url;
+        deleteType = 'profesional';
+        deleteTitle.textContent = 'Eliminar cuenta profesional';
+        deleteMessage.textContent = '\u00bfSeguro que desea eliminar la cuenta de ' + button.dataset.nombre + '? Se eliminar\u00e1n todas sus intervenciones.';
         deleteModal.classList.add("is-open");
         deleteModal.setAttribute("aria-hidden", "false");
       });
@@ -161,8 +199,27 @@
     function closeDeleteModal() {
       deleteModal.classList.remove("is-open");
       deleteModal.setAttribute("aria-hidden", "true");
-      deleteForm.removeAttribute("action");
+      deleteUrl = null;
+      deleteType = null;
     }
+
+    confirmBtn.addEventListener("click", async function() {
+      if (!deleteUrl) return;
+      this.disabled = true;
+      this.textContent = 'Eliminando…';
+      try {
+        const res = await fetch(deleteUrl, { method: 'POST' });
+        const data = await res.json();
+        if (!data.ok) { showAdminToast(data.error || 'Error al eliminar', true); this.disabled = false; this.textContent = 'Eliminar'; return; }
+        closeDeleteModal();
+        showAdminToast(deleteType === 'profesional' ? 'Cuenta eliminada' : 'Intervenci\u00f3n eliminada', false);
+        setTimeout(function() { location.reload(); }, 600);
+      } catch (err) {
+        showAdminToast('Error de conexi\u00f3n', true);
+        this.disabled = false;
+        this.textContent = 'Eliminar';
+      }
+    });
 
     cancelDelete.addEventListener("click", closeDeleteModal);
     deleteModal.addEventListener("click", (event) => {
@@ -174,5 +231,7 @@
       }
     });
   </script>
+<script src="/js/inactivity.js"></script>
 </body>
+
 </html>

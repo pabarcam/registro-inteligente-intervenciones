@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nueva intervención — Talita-Kum</title>
-  <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;500;600;700&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;500;600;700&family=Merriweather:wght@400;700;900&display=swap"
+    rel="stylesheet">
   <style>
     :root {
       --naranja: #ff6f00;
@@ -13,13 +16,23 @@
       --blanco: #ffffff;
       --gris-claro: #f9f6f2;
       --borde: #e0d8cf;
-      --sombra: 0 8px 32px rgba(0,0,0,0.10);
+      --sombra: 0 8px 32px rgba(0, 0, 0, 0.10);
       --radio: 20px;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    h1, h2, h3, h4, .nav-brand { font-family: 'Merriweather', serif; }
+    h1,
+    h2,
+    h3,
+    h4,
+    .nav-brand {
+      font-family: 'Merriweather', serif;
+    }
 
     body {
       font-family: 'Merriweather Sans', sans-serif;
@@ -31,7 +44,8 @@
     /* ── NAV ─────────────────────────────────── */
     nav {
       background: var(--blanco);
-      border-bottom: 1px solid rgba(0,0,0,0.06); box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
       padding: 14px 32px;
       display: flex;
       justify-content: space-between;
@@ -47,14 +61,16 @@
       gap: 8px;
     }
 
-    .nav-brand span { color: var(--naranja); }
+    .nav-brand span {
+      color: var(--naranja);
+    }
 
     .btn-back {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       padding: 8px 18px;
-      border: 1px solid rgba(0,0,0,0.06);
+      border: 1px solid rgba(0, 0, 0, 0.06);
       border-radius: 999px;
       font-weight: 600;
       font-size: 0.875rem;
@@ -64,7 +80,10 @@
       transition: background 0.18s, color 0.18s;
     }
 
-    .btn-back:hover { background: var(--negro); color: var(--blanco); }
+    .btn-back:hover {
+      background: var(--negro);
+      color: var(--blanco);
+    }
 
     /* ── LAYOUT ──────────────────────────────── */
     .page {
@@ -88,7 +107,7 @@
     /* ── TARJETA GRABACIÓN ───────────────────── */
     .rec-card {
       background: var(--blanco);
-      border: 1px solid rgba(0,0,0,0.06);
+      border: 1px solid rgba(0, 0, 0, 0.06);
       border-radius: var(--radio);
       padding: 28px;
       margin-bottom: 24px;
@@ -131,7 +150,9 @@
       transition: transform 0.15s, box-shadow 0.15s;
     }
 
-    .btn-rec:active { transform: scale(0.97); }
+    .btn-rec:active {
+      transform: scale(0.97);
+    }
 
     .btn-primary-rec {
       background: var(--naranja);
@@ -139,12 +160,27 @@
       border-color: var(--naranja);
     }
 
-    .btn-primary-rec:hover { background: #e65f00; border-color: #e65f00; }
-    .btn-primary-rec.recording { background: #c62828; border-color: #c62828; animation: pulse 1.2s infinite; }
+    .btn-primary-rec:hover {
+      background: #e65f00;
+      border-color: #e65f00;
+    }
+
+    .btn-primary-rec.recording {
+      background: #c62828;
+      border-color: #c62828;
+      animation: pulse 1.2s infinite;
+    }
 
     @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(198,40,40,0.4); }
-      50%       { box-shadow: 0 0 0 10px rgba(198,40,40,0); }
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 0 0 10px rgba(198, 40, 40, 0);
+      }
     }
 
     .btn-ghost-rec {
@@ -153,8 +189,15 @@
       border-color: var(--negro);
     }
 
-    .btn-ghost-rec:hover { background: var(--negro); color: var(--blanco); }
-    .btn-ghost-rec:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-ghost-rec:hover {
+      background: var(--negro);
+      color: var(--blanco);
+    }
+
+    .btn-ghost-rec:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
 
     .rec-status {
       font-size: 0.85rem;
@@ -175,7 +218,17 @@
       display: none;
     }
 
-    @keyframes blink { 0%, 100% { opacity:1; } 50% { opacity:0.2; } }
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.2;
+      }
+    }
 
     audio#audioPreview {
       width: 100%;
@@ -187,7 +240,7 @@
     /* ── TARJETA FORMULARIO ──────────────────── */
     .form-card {
       background: var(--blanco);
-      border: 1px solid rgba(0,0,0,0.06);
+      border: 1px solid rgba(0, 0, 0, 0.06);
       border-radius: var(--radio);
       padding: 28px;
       box-shadow: var(--sombra);
@@ -214,7 +267,10 @@
       color: var(--negro);
     }
 
-    label .required { color: var(--naranja); margin-left: 2px; }
+    label .required {
+      color: var(--naranja);
+      margin-left: 2px;
+    }
 
     input[type="text"],
     textarea {
@@ -232,7 +288,9 @@
     }
 
     input[type="text"]:focus,
-    textarea:focus { border-color: var(--naranja); }
+    textarea:focus {
+      border-color: var(--naranja);
+    }
 
     textarea {
       min-height: 260px;
@@ -279,7 +337,10 @@
       transition: background 0.18s;
     }
 
-    .btn-save:hover { background: #e65f00; border-color: #e65f00; }
+    .btn-save:hover {
+      background: #e65f00;
+      border-color: #e65f00;
+    }
 
     .btn-listen {
       display: inline-flex;
@@ -289,14 +350,17 @@
       border-radius: 999px;
       font-weight: 600;
       font-size: 0.95rem;
-      border: 1px solid rgba(0,0,0,0.06);
+      border: 1px solid rgba(0, 0, 0, 0.06);
       background: var(--blanco);
       color: var(--negro);
       cursor: pointer;
       transition: background 0.18s, color 0.18s;
     }
 
-    .btn-listen:hover { background: var(--negro); color: var(--blanco); }
+    .btn-listen:hover {
+      background: var(--negro);
+      color: var(--blanco);
+    }
 
     /* Toast feedback */
     .toast {
@@ -316,7 +380,10 @@
       pointer-events: none;
     }
 
-    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
     /* Autocomplete dropdown */
     .autocomplete-list {
@@ -334,20 +401,29 @@
       box-shadow: var(--sombra);
       display: none;
     }
+
     .autocomplete-item {
       padding: 10px 16px;
       cursor: pointer;
       font-size: 0.95rem;
       border-bottom: 1px solid var(--borde);
     }
-    .autocomplete-item:last-child { border-bottom: none; }
-    .autocomplete-item:hover { background: var(--naranja-light); color: var(--naranja); }
+
+    .autocomplete-item:last-child {
+      border-bottom: none;
+    }
+
+    .autocomplete-item:hover {
+      background: var(--naranja-light);
+      color: var(--naranja);
+    }
   </style>
 </head>
+
 <body>
 
-  <% if (typeof flashError !== 'undefined' && flashError) { %>
-  <div id="flashErrorBanner" style="
+  <% if (typeof flashError !=='undefined' && flashError) { %>
+    <div id="flashErrorBanner" style="
     position:fixed; top:20px; left:50%; transform:translateX(-50%);
     background:#c62828; color:#fff; padding:14px 28px; border-radius:999px;
     font-weight:700; font-size:0.95rem; z-index:9999;
@@ -355,308 +431,314 @@
     box-shadow:0 8px 32px rgba(0,0,0,0.22);
     animation: slideDown 0.4s ease;
   ">
-    <span style="font-size:1.1rem;">⚠️</span>
-    <%= flashError %>
-  </div>
-  <script>
-    setTimeout(() => {
-      const b = document.getElementById('flashErrorBanner');
-      if (b) { b.style.transition='opacity 0.4s'; b.style.opacity='0'; setTimeout(()=>b.remove(),400); }
-    }, 6000);
-  </script>
-  <% } %>
-
-  <!-- NAV -->
-  <nav>
-    <div class="nav-brand"><img src="/img/talita-kum-logo.png" alt="Talita Kum" style="height: 48px; object-fit: contain;"></div>
-    <div class="nav-actions"><a href="/intervenciones/dashboard" class="btn-back">← Volver al dashboard</a></div>
-  </nav>
-
-  <div class="page">
-    <div class="page-title">Nueva intervención</div>
-    <p class="page-sub">Graba la entrevista, transcríbela y guarda el registro del paciente.</p>
-
-    <!-- Chip terapeuta -->
-    <div class="terapeuta-chip">
-      👩‍⚕️ <%= usuario && usuario.nombre ? usuario.nombre : 'Terapeuta' %>
+      <span style="font-size:1.1rem;">⚠️</span>
+      <%= flashError %>
     </div>
+    <script>
+      setTimeout(() => {
+        const b = document.getElementById('flashErrorBanner');
+        if (b) { b.style.transition = 'opacity 0.4s'; b.style.opacity = '0'; setTimeout(() => b.remove(), 400); }
+      }, 6000);
+    </script>
+    <% } %>
 
-    <!-- ── SECCIÓN GRABACIÓN ── -->
-    <div class="rec-card">
-      <h2>🎙️ Grabación de audio</h2>
-      <p>Graba la sesión, detén la grabación y descarga el archivo antes de guardar.</p>
+      <!-- NAV -->
+      <nav>
+        <div class="nav-brand"><img src="/img/talita-kum-logo.png" alt="Talita Kum"
+            style="height: 48px; object-fit: contain;"></div>
+        <div class="nav-actions"><a href="/intervenciones/dashboard" class="btn-back">← Volver al dashboard</a></div>
+      </nav>
 
-      <div class="rec-actions">
-        <button type="button" id="recordBtn" class="btn-rec btn-primary-rec">
-          🎙️ Iniciar grabación
-        </button>
-        <button type="button" id="downloadAudioBtn" class="btn-rec btn-ghost-rec" disabled>
-          ⬇️ Descargar audio
-        </button>
-      </div>
+      <div class="page">
+        <div class="page-title">Nueva intervención</div>
+        <p class="page-sub">Graba la entrevista, transcríbela y guarda el registro del paciente.</p>
 
-      <div class="rec-status">
-        <span class="dot-live" id="dotLive"></span>
-        <span id="recordStatus">Listo para iniciar</span>
-      </div>
+        <!-- Chip terapeuta -->
+        <div class="terapeuta-chip">
+          👩‍⚕️ <%= usuario && usuario.nombre ? usuario.nombre : 'Terapeuta' %>
+        </div>
 
-      <audio id="audioPreview" controls></audio>
-    </div>
+        <!-- ── SECCIÓN GRABACIÓN ── -->
+        <div class="rec-card">
+          <h2>🎙️ Grabación de audio</h2>
+          <p>Graba la sesión, detén la grabación y descarga el archivo antes de guardar.</p>
 
-    <!-- ── FORMULARIO ── -->
-    <form action="/intervenciones/guardar" method="POST" enctype="multipart/form-data" class="form-card" id="mainForm">
-      <!-- Campos ocultos -->
-      <input type="hidden" name="terapeuta" value="<%= usuario && usuario.nombre ? usuario.nombre : '' %>">
-      <input type="hidden" name="fecha" id="fechaInput">
-      <input type="hidden" name="audioBlob" id="audioBlobInput">
+          <div class="rec-actions">
+            <button type="button" id="recordBtn" class="btn-rec btn-primary-rec">
+              🎙️ Iniciar grabación
+            </button>
+            <button type="button" id="downloadAudioBtn" class="btn-rec btn-ghost-rec" disabled>
+              ⬇️ Descargar audio
+            </button>
+          </div>
 
-      <h2>📝 Registro de entrevista</h2>
+          <div class="rec-status">
+            <span class="dot-live" id="dotLive"></span>
+            <span id="recordStatus">Listo para iniciar</span>
+          </div>
 
-      <!-- Paciente -->
-      <div class="field-group" style="position:relative;">
-        <label for="paciente">Nombre del paciente <span class="required">*</span></label>
-        <input type="text" name="paciente" id="paciente" placeholder="Ej: María González" autocomplete="off" required>
-        <div id="autocompleteList" class="autocomplete-list"></div>
-        <small style="color:#888;font-size:0.8rem;margin-top:6px;display:block;">
-          Selecciona un paciente de la lista. Si no existe, ingresa el nombre y ambos apellidos para crearlo.
-        </small>
-      </div>
+          <audio id="audioPreview" controls></audio>
+        </div>
 
-      <!-- Entrevista -->
-      <div class="field-group">
-        <label for="descripcion">
-          Entrevista <span class="required">*</span>
-          <span id="dictLabel" style="display:none;margin-left:8px;font-weight:500;
+        <!-- ── FORMULARIO ── -->
+        <form action="/intervenciones/guardar" method="POST" enctype="multipart/form-data" class="form-card"
+          id="mainForm">
+          <!-- Campos ocultos -->
+          <input type="hidden" name="terapeuta" value="<%= usuario && usuario.nombre ? usuario.nombre : '' %>">
+          <input type="hidden" name="fecha" id="fechaInput">
+          <input type="hidden" name="audioBlob" id="audioBlobInput">
+
+          <h2>📝 Registro de entrevista</h2>
+
+          <!-- Paciente -->
+          <div class="field-group" style="position:relative;">
+            <label for="paciente">Nombre del paciente <span class="required">*</span></label>
+            <input type="text" name="paciente" id="paciente" placeholder="Ej: María González Pérez" autocomplete="off"
+              required>
+            <div id="autocompleteList" class="autocomplete-list"></div>
+            <small style="color:#888;font-size:0.8rem;margin-top:6px;display:block;">
+              Selecciona un paciente existente o ingresa nombre y <strong>ambos apellidos</strong> (ej: María González Pérez).
+            </small>
+          </div>
+
+          <!-- Entrevista -->
+          <div class="field-group">
+            <label for="descripcion">
+              Entrevista <span class="required">*</span>
+              <span id="dictLabel" style="display:none;margin-left:8px;font-weight:500;
             color:#ff6f00;font-size:0.78rem;animation:blink 1s infinite;">🎙️ Dictando en vivo…</span>
-        </label>
-        <textarea name="descripcion" id="descripcion" placeholder="Escribe aquí o graba el audio para dictado automático…"></textarea>
+            </label>
+            <textarea name="descripcion" id="descripcion"
+              placeholder="Escribe aquí o graba el audio para dictado automático…"></textarea>
+          </div>
+
+          <!-- archivo de audio (hidden, llenado por JS) -->
+          <input type="file" name="audio" id="audioFile" accept="audio/*" style="display:none">
+
+          <!-- Acciones -->
+          <div class="form-actions">
+            <button type="submit" class="btn-save">💾 Guardar intervención</button>
+            <button type="button" id="listenTranscriptionBtn" class="btn-listen">🔊 Escuchar transcripción</button>
+          </div>
+        </form>
       </div>
 
-      <!-- archivo de audio (hidden, llenado por JS) -->
-      <input type="file" name="audio" id="audioFile" accept="audio/*" style="display:none">
+      <!-- Toast -->
+      <div class="toast" id="toast"></div>
 
-      <!-- Acciones -->
-      <div class="form-actions">
-        <button type="submit" class="btn-save">💾 Guardar intervención</button>
-        <button type="button" id="listenTranscriptionBtn" class="btn-listen">🔊 Escuchar transcripción</button>
-      </div>
-    </form>
-  </div>
+      <script>
+        /* ── Fecha automática ───────────────────── */
+        const today = new Date().toISOString().slice(0, 10);
+        document.getElementById('fechaInput').value = today;
 
-  <!-- Toast -->
-  <div class="toast" id="toast"></div>
+        /* ── Referencias ────────────────────────── */
+        const recordBtn = document.getElementById('recordBtn');
+        const downloadAudioBtn = document.getElementById('downloadAudioBtn');
+        const recordStatus = document.getElementById('recordStatus');
+        const dotLive = document.getElementById('dotLive');
+        const audioPreview = document.getElementById('audioPreview');
+        const audioFile = document.getElementById('audioFile');
+        const descriptionField = document.getElementById('descripcion');
+        const dictLabel = document.getElementById('dictLabel');
+        const listenBtn = document.getElementById('listenTranscriptionBtn');
+        const toast = document.getElementById('toast');
 
-  <script>
-    /* ── Fecha automática ───────────────────── */
-    const today = new Date().toISOString().slice(0, 10);
-    document.getElementById('fechaInput').value = today;
+        let mediaRecorder, chunks = [], stream, recordedBlob = null;
+        let recognition = null;
+        let recognitionActive = false;
+        let transcriptBase = '';   // texto confirmado antes de la grabación actual
 
-    /* ── Referencias ────────────────────────── */
-    const recordBtn        = document.getElementById('recordBtn');
-    const downloadAudioBtn = document.getElementById('downloadAudioBtn');
-    const recordStatus     = document.getElementById('recordStatus');
-    const dotLive          = document.getElementById('dotLive');
-    const audioPreview     = document.getElementById('audioPreview');
-    const audioFile        = document.getElementById('audioFile');
-    const descriptionField = document.getElementById('descripcion');
-    const dictLabel        = document.getElementById('dictLabel');
-    const listenBtn        = document.getElementById('listenTranscriptionBtn');
-    const toast            = document.getElementById('toast');
+        function showToast(msg, ms = 2800) {
+          toast.textContent = msg;
+          toast.classList.add('show');
+          setTimeout(() => toast.classList.remove('show'), ms);
+        }
 
-    let mediaRecorder, chunks = [], stream, recordedBlob = null;
-    let recognition = null;
-    let recognitionActive = false;
-    let transcriptBase = '';   // texto confirmado antes de la grabación actual
+        /* ── SpeechRecognition (dictado) ────────── */
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const hasSpeech = !!SpeechRecognition;
 
-    function showToast(msg, ms = 2800) {
-      toast.textContent = msg;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), ms);
-    }
+        function initRecognition() {
+          if (!hasSpeech) return null;
+          const rec = new SpeechRecognition();
+          rec.lang = 'es-ES';
+          rec.continuous = true;
+          rec.interimResults = true;
 
-    /* ── SpeechRecognition (dictado) ────────── */
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const hasSpeech = !!SpeechRecognition;
+          rec.onresult = (event) => {
+            let interim = '';
+            let final = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+              const t = event.results[i][0].transcript;
+              if (event.results[i].isFinal) {
+                final += t + ' ';
+              } else {
+                interim += t;
+              }
+            }
+            // Si hay resultados finales, los agregamos a la base
+            if (final) transcriptBase += final;
+            // Mostrar base confirmada + texto interino en gris
+            descriptionField.value = transcriptBase + interim;
+          };
 
-    function initRecognition() {
-      if (!hasSpeech) return null;
-      const rec = new SpeechRecognition();
-      rec.lang = 'es-ES';
-      rec.continuous = true;
-      rec.interimResults = true;
+          rec.onerror = (e) => {
+            if (e.error !== 'no-speech') {
+              console.warn('[SpeechRecognition]', e.error);
+              showToast('⚠️ Error de reconocimiento: ' + e.error);
+            }
+          };
 
-      rec.onresult = (event) => {
-        let interim = '';
-        let final = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const t = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            final += t + ' ';
-          } else {
-            interim += t;
+          rec.onend = () => {
+            // Si la grabación sigue activa, reiniciamos automáticamente
+            if (recognitionActive) {
+              try { rec.start(); } catch (_) { }
+            }
+          };
+
+          return rec;
+        }
+
+        /* ── Iniciar grabación ──────────────────── */
+        async function startRecording() {
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            chunks = [];
+
+            mediaRecorder.ondataavailable = e => chunks.push(e.data);
+            mediaRecorder.onstop = () => {
+              recordedBlob = new Blob(chunks, { type: 'audio/webm' });
+              const file = new File([recordedBlob], 'entrevista.webm', { type: 'audio/webm' });
+              const dt = new DataTransfer();
+              dt.items.add(file);
+              audioFile.files = dt.files;
+
+              audioPreview.src = URL.createObjectURL(recordedBlob);
+              audioPreview.style.display = 'block';
+              recordStatus.textContent = 'Grabación lista ✓';
+              dotLive.style.display = 'none';
+              recordBtn.textContent = '🎙️ Nueva grabación';
+              recordBtn.classList.remove('recording');
+              downloadAudioBtn.disabled = false;
+              showToast('✅ Audio grabado y transcripción completa');
+              if (dictLabel) dictLabel.style.display = 'none';
+            };
+
+            mediaRecorder.start();
+            recordStatus.textContent = hasSpeech
+              ? 'Grabando y transcribiendo… habla claramente'
+              : 'Grabando… (dictado no disponible en este navegador)';
+            dotLive.style.display = 'inline-block';
+            recordBtn.textContent = '⏹️ Detener grabación';
+            recordBtn.classList.add('recording');
+
+            // Guardar texto previo como base
+            transcriptBase = descriptionField.value
+              ? descriptionField.value.trimEnd() + '\n'
+              : '';
+
+            // Arrancar SpeechRecognition
+            if (hasSpeech) {
+              recognition = initRecognition();
+              recognitionActive = true;
+              recognition.start();
+              if (dictLabel) dictLabel.style.display = 'inline';
+            }
+
+          } catch (err) {
+            recordStatus.textContent = 'No se pudo acceder al micrófono';
+            showToast('⚠️ No fue posible acceder al micrófono');
+            console.error(err);
           }
         }
-        // Si hay resultados finales, los agregamos a la base
-        if (final) transcriptBase += final;
-        // Mostrar base confirmada + texto interino en gris
-        descriptionField.value = transcriptBase + interim;
-      };
 
-      rec.onerror = (e) => {
-        if (e.error !== 'no-speech') {
-          console.warn('[SpeechRecognition]', e.error);
-          showToast('⚠️ Error de reconocimiento: ' + e.error);
-        }
-      };
+        /* ── Botón grabar/detener ────────────────── */
+        recordBtn.addEventListener('click', async () => {
+          if (mediaRecorder && mediaRecorder.state === 'recording') {
+            // Detener grabación
+            recognitionActive = false;
+            if (recognition) {
+              try { recognition.stop(); } catch (_) { }
+            }
+            mediaRecorder.stop();
+            stream.getTracks().forEach(t => t.stop());
+            return;
+          }
+          await startRecording();
+        });
 
-      rec.onend = () => {
-        // Si la grabación sigue activa, reiniciamos automáticamente
-        if (recognitionActive) {
-          try { rec.start(); } catch (_) {}
-        }
-      };
+        /* ── Descargar audio ────────────────────── */
+        downloadAudioBtn.addEventListener('click', () => {
+          if (!recordedBlob) { showToast('⚠️ Primero graba el audio'); return; }
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(recordedBlob);
+          link.download = `entrevista-${today}.webm`;
+          link.click();
+          showToast('⬇️ Descarga iniciada');
+        });
 
-      return rec;
-    }
+        /* ── Escuchar transcripción ─────────────── */
+        listenBtn.addEventListener('click', () => {
+          const text = descriptionField.value.trim();
+          if (!text) { showToast('⚠️ Primero escribe la transcripción'); return; }
+          const utt = new SpeechSynthesisUtterance(text);
+          utt.lang = 'es-ES';
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.speak(utt);
+          showToast('🔊 Reproduciendo transcripción…');
+        });
 
-    /* ── Iniciar grabación ──────────────────── */
-    async function startRecording() {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        chunks = [];
+        /* ── Autocomplete Pacientes ──────────────── */
+        const pacienteInput = document.getElementById('paciente');
+        const autocompleteList = document.getElementById('autocompleteList');
+        let debounceTimer;
 
-        mediaRecorder.ondataavailable = e => chunks.push(e.data);
-        mediaRecorder.onstop = () => {
-          recordedBlob = new Blob(chunks, { type: 'audio/webm' });
-          const file = new File([recordedBlob], 'entrevista.webm', { type: 'audio/webm' });
-          const dt = new DataTransfer();
-          dt.items.add(file);
-          audioFile.files = dt.files;
+        pacienteInput.addEventListener('input', function () {
+          clearTimeout(debounceTimer);
+          const val = this.value;
 
-          audioPreview.src = URL.createObjectURL(recordedBlob);
-          audioPreview.style.display = 'block';
-          recordStatus.textContent = 'Grabación lista ✓';
-          dotLive.style.display = 'none';
-          recordBtn.textContent = '🎙️ Nueva grabación';
-          recordBtn.classList.remove('recording');
-          downloadAudioBtn.disabled = false;
-          showToast('✅ Audio grabado y transcripción completa');
-          if (dictLabel) dictLabel.style.display = 'none';
-        };
+          if (!val) {
+            autocompleteList.style.display = 'none';
+            return;
+          }
 
-        mediaRecorder.start();
-        recordStatus.textContent = hasSpeech
-          ? 'Grabando y transcribiendo… habla claramente'
-          : 'Grabando… (dictado no disponible en este navegador)';
-        dotLive.style.display = 'inline-block';
-        recordBtn.textContent = '⏹️ Detener grabación';
-        recordBtn.classList.add('recording');
+          debounceTimer = setTimeout(async () => {
+            try {
+              const res = await fetch(`/intervenciones/api/pacientes?q=${encodeURIComponent(val)}`);
+              const pacientes = await res.json();
 
-        // Guardar texto previo como base
-        transcriptBase = descriptionField.value
-          ? descriptionField.value.trimEnd() + '\n'
-          : '';
-
-        // Arrancar SpeechRecognition
-        if (hasSpeech) {
-          recognition = initRecognition();
-          recognitionActive = true;
-          recognition.start();
-          if (dictLabel) dictLabel.style.display = 'inline';
-        }
-
-      } catch (err) {
-        recordStatus.textContent = 'No se pudo acceder al micrófono';
-        showToast('⚠️ No fue posible acceder al micrófono');
-        console.error(err);
-      }
-    }
-
-    /* ── Botón grabar/detener ────────────────── */
-    recordBtn.addEventListener('click', async () => {
-      if (mediaRecorder && mediaRecorder.state === 'recording') {
-        // Detener grabación
-        recognitionActive = false;
-        if (recognition) {
-          try { recognition.stop(); } catch (_) {}
-        }
-        mediaRecorder.stop();
-        stream.getTracks().forEach(t => t.stop());
-        return;
-      }
-      await startRecording();
-    });
-
-    /* ── Descargar audio ────────────────────── */
-    downloadAudioBtn.addEventListener('click', () => {
-      if (!recordedBlob) { showToast('⚠️ Primero graba el audio'); return; }
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(recordedBlob);
-      link.download = `entrevista-${today}.webm`;
-      link.click();
-      showToast('⬇️ Descarga iniciada');
-    });
-
-    /* ── Escuchar transcripción ─────────────── */
-    listenBtn.addEventListener('click', () => {
-      const text = descriptionField.value.trim();
-      if (!text) { showToast('⚠️ Primero escribe la transcripción'); return; }
-      const utt = new SpeechSynthesisUtterance(text);
-      utt.lang = 'es-ES';
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(utt);
-      showToast('🔊 Reproduciendo transcripción…');
-    });
-
-    /* ── Autocomplete Pacientes ──────────────── */
-    const pacienteInput = document.getElementById('paciente');
-    const autocompleteList = document.getElementById('autocompleteList');
-    let debounceTimer;
-
-    pacienteInput.addEventListener('input', function() {
-      clearTimeout(debounceTimer);
-      const val = this.value;
-      
-      if (!val) {
-        autocompleteList.style.display = 'none';
-        return;
-      }
-      
-      debounceTimer = setTimeout(async () => {
-        try {
-          const res = await fetch(`/intervenciones/api/pacientes?q=${encodeURIComponent(val)}`);
-          const pacientes = await res.json();
-          
-          autocompleteList.innerHTML = '';
-          if (pacientes.length > 0) {
-            pacientes.forEach(p => {
-              const div = document.createElement('div');
-              div.className = 'autocomplete-item';
-              div.textContent = p.nombre;
-              div.onclick = function() {
-                pacienteInput.value = p.nombre;
+              autocompleteList.innerHTML = '';
+              if (pacientes.length > 0) {
+                pacientes.forEach(p => {
+                  const div = document.createElement('div');
+                  div.className = 'autocomplete-item';
+                  div.textContent = p.nombre;
+                  div.onclick = function () {
+                    pacienteInput.value = p.nombre;
+                    autocompleteList.style.display = 'none';
+                  };
+                  autocompleteList.appendChild(div);
+                });
+                autocompleteList.style.display = 'block';
+              } else {
                 autocompleteList.style.display = 'none';
-              };
-              autocompleteList.appendChild(div);
-            });
-            autocompleteList.style.display = 'block';
-          } else {
+              }
+            } catch (err) {
+              console.error('Error fetching patients:', err);
+            }
+          }, 300); // 300ms debounce
+        });
+
+        // Cerrar si hace click fuera
+        document.addEventListener('click', function (e) {
+          if (e.target !== pacienteInput && e.target !== autocompleteList) {
             autocompleteList.style.display = 'none';
           }
-        } catch(err) {
-          console.error('Error fetching patients:', err);
-        }
-      }, 300); // 300ms debounce
-    });
+        });
 
-    // Cerrar si hace click fuera
-    document.addEventListener('click', function (e) {
-      if (e.target !== pacienteInput && e.target !== autocompleteList) {
-        autocompleteList.style.display = 'none';
-      }
-    });
-
-  </script>
+      </script>
+<script src="/js/inactivity.js"></script>
 </body>
+
 </html>

@@ -32,19 +32,27 @@
     <form action="/profesionales/registro" method="POST">
       <div class="mb-3">
         <label class="form-label">Nombre completo</label>
-        <input type="text" name="nombre" class="form-control" required>
+        <input type="text" name="nombre" class="form-control" placeholder="ej: Paulo Abarca" required>
       </div>
       <div class="mb-3">
         <label class="form-label">Correo institucional</label>
-        <input type="email" name="correo" class="form-control" required>
+        <input type="email" name="correo" class="form-control" placeholder="ej: paulo@talita.cl" required>
       </div>
       <div class="mb-3">
         <label class="form-label">Contraseña</label>
-        <input type="password" name="password" class="form-control" required>
+        <input type="password" name="password" id="password" class="form-control" placeholder="Mín. 8 caracteres, 1 mayúscula, 1 número y 1 símbolo" required minlength="8">
+        <div id="passwordHelp" class="form-text" style="font-size:0.8rem;color:#888;">
+          Mínimo 8 caracteres, 1 mayúscula, 1 número y 1 símbolo (ej: @ # $ % & !).
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Confirmar contraseña</label>
+        <input type="password" name="password_confirm" id="password_confirm" class="form-control" placeholder="Repite la contraseña" required minlength="8">
+        <div id="confirmError" class="form-text" style="font-size:0.8rem;color:#c62828;display:none;">Las contraseñas no coinciden.</div>
       </div>
       <div class="mb-3">
         <label class="form-label">Especialidad</label>
-        <input type="text" name="especialidad" class="form-control" required>
+        <input type="text" name="especialidad" class="form-control" placeholder="ej: Psicología clínica" required>
       </div>
       <button class="btn btn-primary w-100">Solicitar acceso</button>
     </form>
@@ -52,5 +60,38 @@
       <a href="/profesionales/login" class="text-decoration-none">Volver al login</a>
     </div>
   </div>
+
+  <script>
+    const password = document.getElementById('password');
+    const passwordConfirm = document.getElementById('password_confirm');
+    const confirmError = document.getElementById('confirmError');
+    const form = document.querySelector('form');
+
+    function validatePassword() {
+      const val = password.value;
+      const hasUpper = /[A-Z]/.test(val);
+      const hasNumber = /[0-9]/.test(val);
+      const hasSymbol = /[^a-zA-Z0-9]/.test(val);
+      const hasMinLen = val.length >= 8;
+
+      password.setCustomValidity('');
+      if (val && !(hasUpper && hasNumber && hasSymbol && hasMinLen)) {
+        password.setCustomValidity('Debe tener mínimo 8 caracteres, 1 mayúscula, 1 número y 1 símbolo.');
+      }
+    }
+
+    function validateConfirm() {
+      if (passwordConfirm.value && passwordConfirm.value !== password.value) {
+        confirmError.style.display = 'block';
+        passwordConfirm.setCustomValidity('Las contraseñas no coinciden.');
+      } else {
+        confirmError.style.display = 'none';
+        passwordConfirm.setCustomValidity('');
+      }
+    }
+
+    password.addEventListener('input', validatePassword);
+    passwordConfirm.addEventListener('input', validateConfirm);
+  </script>
 </body>
 </html>
