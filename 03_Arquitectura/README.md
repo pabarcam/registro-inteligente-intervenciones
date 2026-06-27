@@ -24,9 +24,10 @@ La solución sigue una arquitectura web simple y modular, compuesta por:
 - Tablas para usuarios, pacientes e intervenciones.
 
 ### Integración con IA
-- Módulo opcional para generar resúmenes a partir del historial del paciente.
-- Soporta fallback local si no hay API externa configurada.
-- Está preparado para integrarse con servicios como Qwen.
+- Agente de resumen clínico estructurado en 6 secciones con enfoque TCC.
+- Módulo en `utils/ia.js`; cache en tabla `resumenes`.
+- Soporta API externa compatible con chat/completions y fallback local.
+- Ver `docs/integracion-ia.md`.
 
 ## 3. Flujo arquitectónico
 1. El usuario inicia sesión.

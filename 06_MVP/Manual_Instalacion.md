@@ -52,14 +52,19 @@ npm test
 ```
 
 ## 8. Variables de entorno opcionales para IA
-Para activar la integracion con una API de IA tipo Qwen, configurar:
+Para activar el agente de resumen clinico estructurado (compatible con APIs tipo OpenAI/Qwen):
+
 ```env
-AI_SUMMARY_API_URL=...
-AI_SUMMARY_API_KEY=...
-AI_SUMMARY_MODEL=qwen-plus
+AI_SUMMARY_API_URL=https://api.openai.com/v1/chat/completions
+AI_SUMMARY_API_KEY=sk-...
+AI_SUMMARY_MODEL=gpt-4o-mini
 ```
 
-Si no se configuran, la aplicacion usara el mecanismo de resumen local como respaldo.
+Copiar `.env.example` como base. Documentacion completa en `docs/integracion-ia.md`.
+
+El resumen incluye 6 secciones: intervenciones/fechas, criticidad, sesiones anteriores, ultima sesion, avance entre sesiones y enfoque TCC.
+
+Si no se configuran las variables de IA, la aplicacion usara el resumen estructurado local como respaldo.
 
 ## 9. Respaldos y restauracion
 Crear respaldo manual:

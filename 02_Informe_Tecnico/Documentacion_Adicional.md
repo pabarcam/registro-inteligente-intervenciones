@@ -25,19 +25,28 @@ En una siguiente etapa se puede reemplazar por una solución basada en una API e
 ---
 
 ## 2. Módulo de resúmenes con IA
-La solución también incorpora un módulo para generar resúmenes del historial del paciente.
+La solución incorpora un agente de resumen clínico estructurado para el historial del paciente.
+
+### Formato del resumen (6 secciones)
+1. Intervenciones y fechas
+2. Criticidad (Baja / Moderada / Alta / Crítica)
+3. Datos importantes de sesiones anteriores
+4. Datos importantes de la última sesión
+5. Avance entre sesiones
+6. Enfoque TCC y temas de atención (terapia cognitivo-conductual)
 
 ### Implementación actual
-- Se agrupan los registros por paciente.
-- Se construye un resumen con los datos más recientes del historial disponible.
-- El módulo se encuentra en utils/ia.js.
+- Módulo principal en `utils/ia.js` con agente LLM y fallback local estructurado.
+- Cache de resúmenes en tabla SQLite `resumenes` (`utils/summaryCache.js`).
+- Integración al guardar intervenciones (correo SMTP) y en dashboard del paciente.
+- Documentación técnica: `docs/integracion-ia.md` y `.env.example`.
 
 ### Comportamiento
-- Si no hay conexión a una API externa, el sistema usa un resumen local como respaldo.
-- Si se configura una API externa, se puede mejorar la calidad del resumen.
+- Si hay API externa configurada (`AI_SUMMARY_API_URL`, `AI_SUMMARY_API_KEY`), se usa el agente LLM con criterios TCC.
+- Si no hay conexión o falla la API, el sistema genera el mismo formato con heurística local.
 
 ### Valor institucional
-Este módulo puede apoyar la revisión de casos, la toma de decisiones y la generación de una narrativa más clara sobre el historial del paciente.
+Este módulo apoya la revisión de casos, la continuidad del tratamiento y la narrativa clínica bajo enfoque cognitivo-conductual.
 
 ---
 
